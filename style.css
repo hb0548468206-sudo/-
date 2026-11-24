@@ -188,7 +188,71 @@ p { margin: 0 0 1em; }
   filter: drop-shadow(0 2px 2px rgba(255, 255, 255, .6));
 }
 
-.logo img { height: 56px; width: auto; }
+.logo img { height: 58px; width: auto; filter: drop-shadow(0 2px 6px rgba(255, 255, 255, .7)); }
+.logo-sm img { height: 40px; }
+
+/* ---------- קופסת גלידה (תמונה אמיתית + שם הטעם) ---------- */
+.tub {
+  position: relative;
+  display: block;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 466 / 471;
+  margin-inline: auto;
+  container-type: size;
+  direction: ltr;
+}
+
+.tub img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 14px rgba(90, 40, 60, .22));
+}
+
+.tub-lid,
+.tub-name,
+.tub-badge {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tub-lid {
+  top: 16.2%;
+  font-family: var(--font-logo);
+  font-weight: 700;
+  font-size: 6.6cqh;
+  color: var(--tub-tx);
+  transform: translate(-51%, -50%) scaleY(.82);
+  opacity: .95;
+}
+
+.tub-name {
+  top: 80.6%;
+  left: 47.4%;
+  max-width: 54%;
+  overflow: hidden;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 3.9cqh;
+  letter-spacing: .08em;
+  color: var(--tub-tx);
+  text-shadow: 0 0 .4em rgba(0, 0, 0, .12);
+}
+
+.tub-badge {
+  top: 92%;
+  padding: .15em .8em;
+  border-radius: 999px;
+  background: var(--maroon);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 4.6cqh;
+  font-weight: 600;
+  letter-spacing: .06em;
+}
 
 .icon-btn {
   position: relative;
@@ -363,7 +427,7 @@ p { margin: 0 0 1em; }
 }
 
 .cat-tile:hover { transform: translateY(-5px); }
-.cat-tile .art { width: 110px; height: 100px; }
+.cat-tile .art { width: 110px; height: 100px; display: grid; place-items: center; }
 .cat-tile strong { font-weight: 500; color: var(--purple); font-size: 1.1rem; }
 .cat-tile small { color: var(--muted); }
 
@@ -539,7 +603,8 @@ p { margin: 0 0 1em; }
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } }
 
 .card-art {
-  display: block;
+  display: grid;
+  place-items: center;
   aspect-ratio: 1 / .82;
   margin-bottom: .5rem;
 }
@@ -591,7 +656,7 @@ p { margin: 0 0 1em; }
 
 .back-link:hover { color: var(--maroon); }
 
-.product-art { position: relative; aspect-ratio: 1 / .9; }
+.product-art { position: relative; aspect-ratio: 1 / .9; max-height: 440px; width: 100%; display: grid; place-items: center; }
 .product-art svg, .product-art img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 30px 30px rgba(90, 40, 60, .25)); }
 
 .product-info h1 { margin-bottom: .6rem; font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 400; color: var(--muted); }
@@ -842,7 +907,7 @@ textarea { resize: vertical; }
   border-bottom: 1px dashed var(--line);
 }
 
-.line .thumb { width: 64px; height: 58px; border-radius: 14px; background: var(--beige); padding: 4px; }
+.line .thumb { width: 64px; height: 58px; border-radius: 14px; background: var(--beige); padding: 4px; display: grid; place-items: center; }
 .line .thumb svg, .line .thumb img { width: 100%; height: 100%; object-fit: contain; }
 .line h3 { margin: 0; font-size: 1rem; color: var(--purple); }
 .line .meta { font-size: .8rem; color: var(--muted); line-height: 1.4; }

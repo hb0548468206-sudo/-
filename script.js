@@ -5,7 +5,8 @@
      PRODUCTS (מוצרים ומחירים), BRANCHES (סניפים).
 
    תמונות (לא חובה):
-   • images/logo.png            – יחליף את הלוגו הכתוב.
+   • images/logo.png            – הלוגו (כבר בשימוש).
+   • images/tubs/tub-<טעם>.webp  – קופסאות הגלידה לפי טעם.
    • images/products/<id>.png   – יחליף את האיור של המוצר
      (ה-id מופיע בכל מוצר ברשימה למטה, למשל choc-cup.png).
    כל עוד הקובץ לא קיים, מוצג איור מעוצב אוטומטית.
@@ -293,6 +294,20 @@ function hydrateImages(root = document) {
 /* =========================================================
    איורים – SVG
    ========================================================= */
+/* קופסה אמיתית: התמונה המקורית, צבועה לפי הטעם, עם שם הטעם על המכסה ועל התווית */
+const titleCase = (t) => t.toLowerCase().replace(/(^|[\s&])([a-z])/g, (m, a, b) => a + b.toUpperCase());
+function isLight(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 165;
+}
+function tubPhoto(key, badge = "") {
+  const f = FLAVORS[key];
+  const tx = isLight(f.body) ? "#8a5f3a" : "#e8c995";
+  const texts = key === "choc" ? "" /* התמונה המקורית כבר כוללת את הכיתוב */
+    : `<span class="tub-lid">${esc(titleCase(f.en))}</span><span class="tub-name">${esc(f.en)}</span>`;
+  return `<span class="tub" style="--tub-tx:${tx}"><img src="images/tubs/tub-${key}.webp" alt="" loading="lazy" decoding="async">${texts}${badge ? `<span class="tub-badge">${badge}</span>` : ""}</span>`;
+}
+
 function tubSVG(f, { big = false, label = "" } = {}) {
   const u = uid();
   const top = big ? 52 : 66, bot = big ? 182 : 172;
@@ -380,7 +395,7 @@ function packSVG(prod, picks = []) {
       <ellipse cx="110" cy="176" rx="92" ry="10" fill="#5a2a40" opacity=".15"/>
       <path d="M14 120h192l-14 46q-82 14-164 0z" fill="#f4d7df"/>
       <path d="M14 120h192" stroke="#b4526b" stroke-width="3"/>
-      <text x="110" y="160" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="26" fill="#b4526b">Dreamy</text>
+      <image href="images/logo.png" x="80" y="138" width="60" height="25"/>
       ${pos.map(([x, y], i) => `<g transform="translate(${x - 30} ${y - 46}) scale(.5)">${scoopSVG(fl(i % 4), 120).replace(/^<svg[^>]*>|<\/svg>$/g, "")}</g>`).join("")}
     </svg>`;
   }
@@ -395,18 +410,14 @@ function packSVG(prod, picks = []) {
       <path d="M136 54q34 0 54 14-20 14-54 14z" fill="${cols[2].scoop}"/>
       <path d="M26 72L42 182Q110 196 178 182L194 72Q110 92 26 72Z" fill="#f4d7df"/>
       <path d="M26 72Q110 92 194 72" fill="none" stroke="#b4526b" stroke-width="5"/>
-      <text x="110" y="140" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="44" fill="#b4526b">Dreamy</text>
+      <image href="images/logo.png" x="58" y="104" width="104" height="44"/>
       <text x="110" y="164" text-anchor="middle" font-family="Rubik, Arial" font-size="11" letter-spacing="3" fill="#b48d5d">PARTY · 3L</text>
     </svg>`;
   }
   /* box: 6 גביעים */
+  const keyAt = (i) => picks[i] || PACK_FLAVORS[(i * 3 + 1) % PACK_FLAVORS.length];
   const minis = [0, 1, 2].map((i) => {
-    const f = fl(i);
-    const x = 46 + i * 64;
-    return `<g><path d="M${x - 22} 62L${x - 18} 100H${x + 18}L${x + 22} 62Z" fill="${f.body}"/>
-      <rect x="${x - 25}" y="54" width="50" height="10" rx="3" fill="${f.lid}"/>
-      <ellipse cx="${x}" cy="54" rx="25" ry="6" fill="${shade(f.lid, .1)}"/>
-      <text x="${x}" y="86" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="13" fill="${f.tx}">Dreamy</text></g>`;
+    return `<image href="images/tubs/tub-${keyAt(i)}.webp" x="${8 + i * 64}" y="12" width="76" height="77"/>`;
   }).join("");
   return `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <ellipse cx="110" cy="186" rx="92" ry="8" fill="#5a2a40" opacity=".15"/>
@@ -415,17 +426,17 @@ function packSVG(prod, picks = []) {
     <path d="M14 88h192l-10-14H24z" fill="#ecc4cf"/>
     <rect x="102" y="88" width="16" height="94" fill="#b4526b" opacity=".85"/>
     <path d="M110 92c-14-14-30-6-20 4 6 6 20 0 20-4zM110 92c14-14 30-6 20 4-6 6-20 0-20-4z" fill="#b4526b"/>
-    <text x="58" y="142" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="28" fill="#b4526b">Dreamy</text>
+    <image href="images/logo.png" x="22" y="118" width="74" height="31"/>
     <text x="164" y="142" text-anchor="middle" font-family="Rubik, Arial" font-size="12" letter-spacing="2" fill="#b48d5d">6 PACK</text>
   </svg>`;
 }
 
 function productArt(prod, picks) {
   const f = FLAVORS[prod.flavor];
-  if (prod.type === "family") return tubSVG(f, { big: true, label: "FAMILY" });
+  if (prod.type === "family") return tubPhoto(prod.flavor, "FAMILY");
   if (prod.type === "stick") return stickSVG(f, prod);
   if (prod.type === "party") return packSVG(prod, picks);
-  return tubSVG(f, { label: prod.limited ? "LIMITED" : prod.sugarFree ? "NO SUGAR" : "" });
+  return tubPhoto(prod.flavor, prod.limited ? "LIMITED" : prod.sugarFree ? "NO SUGAR" : "");
 }
 
 /* =========================================================
@@ -652,8 +663,8 @@ const view = $("#view");
 function homeView() {
   const top = [...PRODUCTS].filter((x) => x.type === "personal").sort((a, b) => b.likes - a.likes).slice(0, 4);
   const tiles = [
-    { key: "personal", label: "חלום אישי", sub: "גביעים של 250 גרם", art: tubSVG(FLAVORS.straw) },
-    { key: "family", label: "חלום משפחתי", sub: "1 ו-2 ליטר", art: tubSVG(FLAVORS.choc, { big: true }) },
+    { key: "personal", label: "חלום אישי", sub: "גביעים של 250 גרם", art: tubPhoto("straw") },
+    { key: "family", label: "חלום משפחתי", sub: "1 ו-2 ליטר", art: tubPhoto("choc", "FAMILY") },
     { key: "stick", label: "חלום על מקל", sub: "שלגונים וארטיקים", art: stickSVG(FLAVORS.choc, byId("choc-stick")) },
     { key: "party", label: "חלום למסיבות", sub: "מארזים, דליים ומגשים", art: packSVG(byId("party-6")) }
   ];
@@ -1072,10 +1083,6 @@ function init() {
   $$('[data-config="phone"]').forEach((el) => (el.textContent = CONFIG.phone));
   $("#year").textContent = new Date().getFullYear();
 
-  imageExists("images/logo.png").then((ok) => {
-    if (!ok) return;
-    $$(".logo").forEach((l) => (l.innerHTML = `<img src="images/logo.png" alt="Dreamy">`));
-  });
 
   window.addEventListener("hashchange", route);
   route();
