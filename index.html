@@ -3,181 +3,110 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>[שם הצלמת] | צילום ניובורן וסטים אמנותיים</title>
-  <meta name="description" content="צילום ניובורן וסטים אמנותיים בעיצוב אישי – רגישות, סבלנות ותשומת לב לכל פרט.">
+  <title>Dreamy | לא סתם גלידה. גלידה שהיא חלום</title>
+  <meta name="description" content="Dreamy – גלידות פרימיום בעבודת יד: גביעים אישיים, קופסאות משפחתיות, שלגונים ומארזים למסיבות. הזמינו אונליין.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- שמיים ועננים ברקע -->
+  <div class="sky" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+    <span class="cloud c4"></span><span class="cloud c5"></span>
+  </div>
+
   <!-- ===== תפריט עליון ===== -->
-  <header class="site-header" id="top">
-    <div class="container header-inner">
-      <a href="#hero" class="brand" data-config="name">[שם הצלמת]</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <nav class="nav nav-start" aria-label="ניווט ראשי">
+        <a href="#home" class="pill" data-route="home">בית</a>
+        <a href="#shop" class="pill" data-route="shop">החלום המתוק</a>
+      </nav>
 
-      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="פתיחת תפריט">
-        <span></span><span></span><span></span>
-      </button>
+      <a href="#home" class="logo" aria-label="Dreamy – לדף הבית">
+        <span class="logo-text">Dreamy</span>
+      </a>
 
-      <nav class="site-nav" id="site-nav" aria-label="ניווט ראשי">
-        <a href="#gallery">סטים ועבודות</a>
-        <a href="#about">עליי</a>
-        <a href="#contact" class="nav-cta">צרי קשר</a>
+      <nav class="nav nav-end" aria-label="ניווט משני">
+        <a href="#branches" class="pill" data-route="branches">סניפים</a>
+        <a href="#vip" class="pill" data-route="vip">VIP</a>
+        <button type="button" class="icon-btn" id="cart-btn" aria-label="סל הקניות">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/><path d="M13.6 12.2c-.4-.5-1-.7-1.6-.7-.9 0-1.6.5-1.6 1.2 0 1.6 3.3.9 3.3 2.6 0 .7-.8 1.2-1.7 1.2-.7 0-1.3-.3-1.7-.8M12 10.6v.9M12 16.5v.9"/></svg>
+          <span class="badge" id="cart-count" hidden>0</span>
+        </button>
+        <a href="#" class="icon-btn" data-phone aria-label="התקשרו אלינו">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h2.6l1.4 4-2 1.4a11 11 0 0 0 6.5 6.5l1.4-2 4 1.4v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></svg>
+        </a>
+        <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-expanded="false" aria-controls="mobile-nav" aria-label="פתיחת תפריט">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
       </nav>
     </div>
+
+    <nav class="mobile-nav" id="mobile-nav" aria-label="תפריט נייד">
+      <a href="#home" class="pill" data-route="home">בית</a>
+      <a href="#shop" class="pill" data-route="shop">החלום המתוק</a>
+      <a href="#branches" class="pill" data-route="branches">סניפים</a>
+      <a href="#vip" class="pill" data-route="vip">VIP</a>
+    </nav>
   </header>
 
-  <main>
-    <!-- ===== פתיחה ===== -->
-    <section class="hero" id="hero">
-      <div class="hero-blob hero-blob--1" aria-hidden="true"></div>
-      <div class="hero-blob hero-blob--2" aria-hidden="true"></div>
+  <!-- ===== תוכן הדף (נבנה מתוך script.js) ===== -->
+  <main id="view" tabindex="-1"></main>
 
-      <div class="container hero-inner">
-        <div class="hero-text">
-          <p class="eyebrow">צילום ניובורן · סטים אמנותיים</p>
-          <h1 class="hero-title" data-config="name">[שם הצלמת]</h1>
-          <p class="hero-lead">
-            הימים הראשונים עוברים מהר.<br>
-            <span class="hero-accent">אני כאן כדי לעצור אותם לרגע.</span>
-          </p>
-          <p class="hero-sub">
-            סטים שמעוצבים ביד, בדים רכים וגוונים עדינים. מתאימים יחד את הסט, ואתן בוחרות כל פרט בו.
-          </p>
-          <a href="#gallery" class="btn btn-primary">לסטים והעבודות</a>
-        </div>
-
-        <div class="hero-art" aria-hidden="true">
-          <div class="hero-arch" id="hero-art"></div>
-          <span class="hero-star hero-star--1">✦</span>
-          <span class="hero-star hero-star--2">✦</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== גלריה ===== -->
-    <section class="section gallery" id="gallery">
-      <div class="container">
-        <header class="section-head">
-          <p class="eyebrow">הסטים שלי</p>
-          <h2>סטים ועבודות</h2>
-          <p class="section-intro">
-            לחצי על סט כדי לראות אותו מקרוב, ולשנות את השמיכה, האלמנטים והגוונים כרצונך.
-          </p>
-        </header>
-
-        <div class="gallery-grid" id="gallery-grid">
-          <!-- הכרטיסים נבנים אוטומטית מתוך script.js -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== עליי ===== -->
-    <section class="section about" id="about">
-      <div class="container about-inner">
-        <div class="about-text">
-          <p class="eyebrow">נעים להכיר</p>
-          <h2>עליי</h2>
-          <p>
-            כל צילום אצלי מתחיל בשקט. אני מחממת את החדר, מכינה את הסט מראש ונותנת לקטנטנים להכתיב את הקצב.
-            לא ממהרים ולא מכריחים. רק סבלנות, ידיים עדינות והרבה הפסקות לחיבוק ולהאכלה.
-          </p>
-          <p>
-            את הסטים אני מעצבת ובונה בעצמי, מבדים טבעיים ורכים שנבחרו בקפידה. כל פריט מכובס ומחוטא לפני כל צילום.
-            המטרה שלי פשוטה: שהתמונות ירגישו כמו הימים האלה. רכות, נקיות ומלאות אור.
-          </p>
-        </div>
-
-        <ul class="about-points">
-          <li>
-            <span class="point-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.3-9A5.3 5.3 0 0 1 12 6a5.3 5.3 0 0 1 9.3 6C19 16.5 12 21 12 21z"/></svg>
-            </span>
-            <div>
-              <h3>בטיחות קודם לכול</h3>
-              <p>תנוחות טבעיות ובטוחות בלבד, ושמירה על חום ונוחות לאורך כל המפגש.</p>
-            </div>
-          </li>
-          <li>
-            <span class="point-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
-            </span>
-            <div>
-              <h3>בלי לחץ של זמן</h3>
-              <p>המפגש מתוכנן לפי קצב התינוק, עם כל ההפסקות שצריך.</p>
-            </div>
-          </li>
-          <li>
-            <span class="point-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M4 18c4-1 6-4 8-8 2 4 4 7 8 8"/><path d="M12 10V4"/><circle cx="12" cy="4" r="1.2"/></svg>
-            </span>
-            <div>
-              <h3>סטים בעבודת יד</h3>
-              <p>כל סט מעוצב בקפידה, ואפשר להתאים בו כל פרט לטעמכן.</p>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- ===== צור קשר ===== -->
-    <section class="section contact" id="contact">
-      <div class="container contact-card">
-        <p class="eyebrow">בואי נדבר</p>
-        <h2>מתכננות צילום ניובורן?</h2>
-        <p>
-          כדאי לתאם כמה שבועות מראש. כתבי לי ונבנה יחד את הסט המדויק בשבילכם.
-        </p>
-        <a href="#" class="btn btn-primary btn-lg" id="contact-btn" data-mailto>צרי קשר</a>
-        <p class="contact-mail"><a href="#" data-mailto data-config="email">your@email.com</a></p>
-      </div>
-    </section>
-  </main>
-
+  <!-- ===== כותרת תחתונה ===== -->
   <footer class="site-footer">
-    <div class="container">
-      <p>© <span id="year"></span> <span data-config="name">[שם הצלמת]</span> · צילום ניובורן וסטים אמנותיים</p>
+    <div class="footer-inner">
+      <a href="#" class="footer-phone" data-phone data-config="phone">0548468506</a>
+      <p>כל הזכויות שמורות ל-DREAMY © <span id="year"></span></p>
+      <a href="#home" class="logo logo-sm" aria-label="Dreamy"><span class="logo-text">Dreamy</span></a>
     </div>
   </footer>
 
-  <!-- ===== חלונית מוגדלת (Modal) ===== -->
-  <div class="modal" id="modal" hidden>
-    <div class="modal-backdrop" data-close></div>
-    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <button class="modal-close" data-close aria-label="סגירת החלונית">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
+  <!-- ===== סל קניות ===== -->
+  <div class="drawer" id="cart" hidden>
+    <div class="drawer-backdrop" data-close-cart></div>
+    <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+      <header class="drawer-head">
+        <h2 id="cart-title">הסל המתוק שלי</h2>
+        <button type="button" class="close-btn" data-close-cart aria-label="סגירת הסל">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </header>
 
-      <div class="modal-media">
-        <div class="modal-visual" id="modal-visual"></div>
-        <p class="modal-badge" id="modal-badge" aria-live="polite"></p>
-      </div>
+      <div class="drawer-body" id="cart-items"></div>
 
-      <div class="modal-body">
-        <p class="eyebrow" id="modal-eyebrow"></p>
-        <h2 id="modal-title"></h2>
-        <p class="modal-desc" id="modal-desc"></p>
-        <ul class="modal-details" id="modal-details"></ul>
-
-        <div class="customizer" id="customizer">
-          <h3 class="customizer-title">התאימי את הסט</h3>
-          <div id="customizer-groups"></div>
+      <footer class="drawer-foot" id="cart-foot">
+        <div class="totals">
+          <div><span>סכום ביניים</span><span id="cart-subtotal">0 ש"ח</span></div>
+          <div><span>משלוח</span><span id="cart-shipping">–</span></div>
+          <div class="total"><span>סה"כ לתשלום</span><span id="cart-total">0 ש"ח</span></div>
+          <p class="ship-note" id="ship-note"></p>
         </div>
 
-        <div class="selection-summary">
-          <span class="summary-label">הבחירות שלך:</span>
-          <span id="selection-text" aria-live="polite"></span>
-        </div>
-
-        <div class="modal-actions">
-          <a href="#" class="btn btn-primary" id="modal-cta">אהבתי את השילוב, לתיאום</a>
-          <button type="button" class="btn btn-ghost" id="modal-reset">איפוס</button>
-        </div>
-      </div>
-    </div>
+        <form class="checkout" id="checkout" novalidate>
+          <div class="seg" role="radiogroup" aria-label="אופן קבלה">
+            <label><input type="radio" name="method" value="delivery" checked><span>משלוח עד הבית</span></label>
+            <label><input type="radio" name="method" value="pickup"><span>איסוף מסניף</span></label>
+          </div>
+          <input type="text" name="name" placeholder="שם מלא" autocomplete="name" required>
+          <input type="tel" name="phone" placeholder="טלפון" autocomplete="tel" inputmode="tel" required>
+          <input type="text" name="address" placeholder="כתובת למשלוח" autocomplete="street-address" data-for="delivery">
+          <select name="branch" data-for="pickup" hidden></select>
+          <textarea name="notes" rows="2" placeholder="הערות להזמנה (לא חובה)"></textarea>
+          <p class="form-error" id="form-error" role="alert"></p>
+          <button type="submit" class="btn btn-primary btn-block">שליחת הזמנה בוואטסאפ</button>
+          <p class="pay-note">נציג יחזור אליכם לאישור ההזמנה ולתשלום.</p>
+        </form>
+      </footer>
+    </aside>
   </div>
+
+  <!-- הודעה קופצת -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="script.js"></script>
 </body>

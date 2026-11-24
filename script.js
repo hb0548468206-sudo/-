@@ -1,839 +1,1085 @@
 /* =========================================================
-   צילום ניובורן – סקריפט ראשי
+   Dreamy – אתר מכירות גלידה
    ---------------------------------------------------------
-   ✎ את כל הפרטים שצריך לעדכן (שם, מייל, סטים) אפשר לשנות כאן
-     למעלה, בלי לגעת בשאר הקוד.
+   ✎ פרטים לעדכון: CONFIG (טלפון/וואטסאפ), FLAVORS (טעמים),
+     PRODUCTS (מוצרים ומחירים), BRANCHES (סניפים).
 
-   תמונות:
-   • images/work-1.jpg, images/work-2.jpg ... – תמונת הכרטיס של כל סט.
-   • images/work-1-knit-teddy-pink.jpg – תמונה לשילוב מסוים
-     (מספר הסט ואחריו הבחירות לפי סדר הקבוצות, מופרדות במקף).
-   כל עוד הקובץ לא קיים, מוצגת המחשה מעוצבת שמתעדכנת לפי הבחירות.
+   תמונות (לא חובה):
+   • images/logo.png            – יחליף את הלוגו הכתוב.
+   • images/products/<id>.png   – יחליף את האיור של המוצר
+     (ה-id מופיע בכל מוצר ברשימה למטה, למשל choc-cup.png).
+   כל עוד הקובץ לא קיים, מוצג איור מעוצב אוטומטית.
    ========================================================= */
 
 const CONFIG = {
-  name: "[שם הצלמת]",
-  email: "your@email.com",
-  contactSubject: "תיאום צילום ניובורן",
-  imageFolder: "images/",
-  imageExt: ".jpg"
+  brand: "Dreamy",
+  phone: "0548468506",
+  whatsapp: "972548468506",
+  freeShippingFrom: 150,
+  shippingPrice: 25,
+  currency: 'ש"ח'
 };
 
-/* ---------- פלטות גוונים ---------- */
-const TONES = {
-  pink:  { label: "ורוד פודרה", wall: "#f7e4df", wall2: "#f0d4cd", floor: "#ead0c8", main: "#e9b9b3", deep: "#c58886", light: "#fbeeea" },
-  cream: { label: "שמנת",       wall: "#f7efe4", wall2: "#efe3d2", floor: "#e7d8c3", main: "#ecdcc4", deep: "#c4a684", light: "#fcf6ee" },
-  peach: { label: "אפרסק",      wall: "#faeadf", wall2: "#f3dacb", floor: "#eed3c1", main: "#f2c6ab", deep: "#d0977a", light: "#fdf1e8" },
-  mint:  { label: "מנטה עדין",  wall: "#edf2ec", wall2: "#dfe9e0", floor: "#d9e3d8", main: "#cbdfd2", deep: "#8eae9c", light: "#f5f9f5" }
+/* ---------- טעמים: שם, שם באנגלית לתווית, וצבעי האריזה ---------- */
+const FLAVORS = {
+  choc:      { name: "שוקולד חלומי",     en: "RICH CHOCOLATE",   body: "#5b3323", lid: "#3d2016", tx: "#e3bf86", scoop: "#6e3d28", bits: "#2e170f" },
+  vanilla:   { name: "וניל חלומי",       en: "VANILLA BEAN",     body: "#f7f0e2", lid: "#e6d6ba", tx: "#b08757", scoop: "#f5ead2", bits: "#4a3524" },
+  straw:     { name: "תות חלומי",        en: "STRAWBERRY",       body: "#ef9fbc", lid: "#d9789b", tx: "#fff6f8", scoop: "#f3abc1", bits: "#c22f52" },
+  pistachio: { name: "פיסטוק משי",       en: "PISTACHIO",        body: "#b5cb90", lid: "#8fa86a", tx: "#fffaf0", scoop: "#c3d6a0", bits: "#6f8a46" },
+  caramel:   { name: "קרמל מלוח",        en: "SALTED CARAMEL",   body: "#c88849", lid: "#a46731", tx: "#fff3e0", scoop: "#dba367", bits: "#fffdf8" },
+  cookies:   { name: "עוגיות ושמנת",     en: "COOKIES & CREAM",  body: "#2f2a2a", lid: "#1c1818", tx: "#f1e5d1", scoop: "#efe7da", bits: "#2b2523" },
+  mango:     { name: "מנגו פסיפלורה",    en: "MANGO PASSION",    body: "#f5b548", lid: "#e2962a", tx: "#fffaf0", scoop: "#f8c45f", bits: "#6b3f10" },
+  lemon:     { name: "לימון נענע",       en: "LEMON MINT",       body: "#f3e68a", lid: "#a9c77e", tx: "#557235", scoop: "#f6ee9f", bits: "#6f9f5c" },
+  dulce:     { name: "ריבת חלב",         en: "DULCE DE LECHE",   body: "#e1b07a", lid: "#bc8a54", tx: "#fff7ea", scoop: "#e8be8d", bits: "#8b5a2b" },
+  hazelnut:  { name: "אגוזי לוז וקרמל",  en: "HAZELNUT CARAMEL", body: "#8a5838", lid: "#673e25", tx: "#f2d5a4", scoop: "#a9734c", bits: "#55311c" },
+  berries:   { name: "פירות יער",        en: "WILD BERRIES",     body: "#8d3c6a", lid: "#6a284f", tx: "#fde6f0", scoop: "#a9517f", bits: "#3f1530" },
+  coffee:    { name: "קפה אספרסו",       en: "ESPRESSO",         body: "#7a5641", lid: "#4f3426", tx: "#f3dcc0", scoop: "#a07b62", bits: "#3a2318" },
+  honeyfig:  { name: "דבש ותאנים",       en: "HONEY & FIG",      body: "#d9a35b", lid: "#7a3f52", tx: "#fff4e2", scoop: "#e7b973", bits: "#6d2e45" },
+  halva:     { name: "חלבה וסילאן",      en: "HALVA & DATE",     body: "#eadabd", lid: "#8a5a3a", tx: "#7a4f30", scoop: "#ece0c6", bits: "#6b3e22" },
+  chocsf:    { name: "שוקולד ללא סוכר",  en: "NO SUGAR CHOCO",   body: "#6a3e2b", lid: "#47281b", tx: "#cfe3c4", scoop: "#7a4a33", bits: "#2e170f" },
+  vanillasf: { name: "וניל ללא סוכר",    en: "NO SUGAR VANILLA", body: "#f3efe4", lid: "#c9dcc0", tx: "#6f9566", scoop: "#f2ead8", bits: "#4a3524" }
 };
 
-const FLOWER_COLORS = {
-  pink:  { label: "ורודים", petal: "#eaa9a8", center: "#d78c88" },
-  white: { label: "לבנים",  petal: "#fffaf5", center: "#e6c98f" },
-  peach: { label: "אפרסק",  petal: "#f3bf9f", center: "#d99a73" }
+/* ---------- קטגוריות ("על מה אתם חולמים?") וקבוצות טעם ---------- */
+const DREAMS = [
+  { key: "family",    label: "חלום משפחתי" },
+  { key: "personal",  label: "חלום אישי" },
+  { key: "stick",     label: "חלום על מקל" },
+  { key: "party",     label: "חלום למסיבות" },
+  { key: "allergen",  label: "חלום לאלרגנים" },
+  { key: "sugarfree", label: "חלום ללא סוכר" }
+];
+
+const GROUPS = [
+  { key: "chocolate", label: "שוקולד ומתוקים" },
+  { key: "fruit",     label: "פירות" },
+  { key: "caramel",   label: "קרמל ומלוחים" },
+  { key: "special",   label: "מיוחדים" },
+  { key: "limited",   label: "מהדורות מוגבלות" }
+];
+
+const TEXTURES = { creamy: "קרמי", sorbet: "סורבה", chunky: "עשיר בקטעים" };
+
+const SIZES = {
+  family: [
+    { key: "1l", label: "1 ליטר", price: 79 },
+    { key: "2l", label: "2 ליטר", price: 139 }
+  ],
+  stick: [
+    { key: "one", label: "יחידה", price: 14 },
+    { key: "six", label: "מארז 6 יחידות", price: 69 }
+  ]
 };
 
-/* ---------- הסטים ---------- */
-const SETS = [
-  {
-    id: 1,
-    title: "שמיכה ובלונים",
-    short: "פוף רך, שמיכה עוטפת ובלונים בגוונים עדינים.",
-    desc: "סט קלאסי ונעים: פוף רך שמכוסה בשמיכה עוטפת, ולידו אלמנט מתוק שמשלים את הסיפור. אפשר לבחור את סוג השמיכה, את האלמנט ואת הגוון של כל הסט.",
-    details: ["מתאים לגילאי 5–14 ימים", "כ-3 שעות צילום", "כולל 2 החלפות"],
-    tags: ["פוף", "בלונים", "דובון"],
-    options: [
-      { key: "blanket", label: "סוג השמיכה", choices: [
-        { value: "jersey", label: "שמיכת טריקו" },
-        { value: "knit",   label: "שמיכה סרוגה" },
-        { value: "fur",    label: "פרווה רכה" }
-      ]},
-      { key: "element", label: "אלמנט מרכזי", choices: [
-        { value: "balloons", label: "בלונים" },
-        { value: "teddy",    label: "בובת דובון" },
-        { value: "moon",     label: "ירח וכוכבים" }
-      ]},
-      { key: "tone", label: "גוון הסט", tone: true, choices: ["pink", "cream", "peach"] }
-    ],
-    draw: drawBlanketSet
-  },
-  {
-    id: 2,
-    title: "עץ טבעי",
-    short: "קערת עץ או ארגז כפרי, פשתן וצמחייה ירוקה.",
-    desc: "סט בהשראת הטבע. עץ חם, בדים טבעיים וצמחייה עדינה. סט אדמתי ושקט שמבליט את הפרטים הקטנים.",
-    details: ["מתאים לגילאי 5–14 ימים", "בדים טבעיים בלבד", "צמחייה מיובשת"],
-    tags: ["עץ", "פשתן", "אקליפטוס"],
-    options: [
-      { key: "container", label: "בסיס העץ", choices: [
-        { value: "bowl",  label: "קערת עץ" },
-        { value: "crate", label: "ארגז עץ" }
-      ]},
-      { key: "wrap", label: "בד עוטף", choices: [
-        { value: "linen", label: "פשתן" },
-        { value: "knit",  label: "סרוג" }
-      ]},
-      { key: "accent", label: "קישוט", choices: [
-        { value: "leaves",  label: "עלי אקליפטוס" },
-        { value: "flowers", label: "פרחים לבנים" }
-      ]}
-    ],
-    draw: drawWoodSet
-  },
-  {
-    id: 3,
-    title: "סל נצרים",
-    short: "סל קלוע ומרופד, עם קישוט תלוי או זר פרחים.",
-    desc: "סל נצרים בעבודת יד עם ריפוד רך במיוחד. הסט מתאים לתמונה עליונה או צדדית ונראה טוב בכל גוון.",
-    details: ["מתאים לגילאי 5–21 ימים", "ריפוד נשלף ומכובס", "צילום מלמעלה ומהצד"],
-    tags: ["נצרים", "פרווה", "כוכבים"],
-    options: [
-      { key: "shape", label: "צורת הסל", choices: [
-        { value: "round", label: "סל עגול" },
-        { value: "boat",  label: "סל סירה" }
-      ]},
-      { key: "lining", label: "ריפוד", choices: [
-        { value: "fur",   label: "פרווה לבנה" },
-        { value: "satin", label: "סאטן ורוד" }
-      ]},
-      { key: "accent", label: "קישוט", choices: [
-        { value: "stars",   label: "שרשרת כוכבים" },
-        { value: "bouquet", label: "זר פרחים" }
-      ]}
-    ],
-    draw: drawBasketSet
-  },
-  {
-    id: 4,
-    title: "ענן חלומות",
-    short: "כרית ענן רכה וירח או כוכבים תלויים.",
-    desc: "סט חלומי ושקט: כרית בצורת ענן, שמיכה דקה וקישוט תלוי מעל. מתאים במיוחד לתמונות שינה עמוקה.",
-    details: ["מתאים לגילאי 5–14 ימים", "תאורה רכה", "גוונים פסטליים"],
-    tags: ["ענן", "ירח", "פסטל"],
-    options: [
-      { key: "tone", label: "גוון הענן", tone: true, choices: ["pink", "cream", "mint"] },
-      { key: "hang", label: "קישוט תלוי", choices: [
-        { value: "moon",  label: "ירח" },
-        { value: "stars", label: "כוכבים" }
-      ]},
-      { key: "blanket", label: "שמיכה", choices: [
-        { value: "knit",   label: "סרוגה" },
-        { value: "jersey", label: "טריקו" }
-      ]}
-    ],
-    draw: drawCloudSet
-  },
-  {
-    id: 5,
-    title: "קשת פרחים",
-    short: "קשת או חישוק זהוב עם פרחים מיובשים.",
-    desc: "מסגרת זהובה עדינה עם פרחים מיובשים, ומתחתיה כרית רכה. הסט מתאים מאוד לתמונה בפורמט אנכי לתלייה.",
-    details: ["מתאים לגילאי 5–21 ימים", "פרחים מיובשים", "מסגרת בהתאמה אישית"],
-    tags: ["פרחים", "קשת", "זהב"],
-    options: [
-      { key: "frame", label: "מסגרת", choices: [
-        { value: "arch", label: "קשת" },
-        { value: "hoop", label: "חישוק עגול" }
-      ]},
-      { key: "flowers", label: "גוון הפרחים", flower: true, choices: ["pink", "white", "peach"] },
-      { key: "wrap", label: "כרית", choices: [
-        { value: "linen", label: "פשתן" },
-        { value: "fur",   label: "פרווה" }
-      ]}
-    ],
-    draw: drawFlowerSet
-  },
-  {
-    id: 6,
-    title: "פיקניק קטן",
-    short: "מפה, כרית קטנה ואביזר אחד שמשלים את הסיפור.",
-    desc: "סט קיצי ומתוק: מפת פיקניק, כרית רכה לתינוק ואביזר אחד לבחירתכן. מתאים במיוחד לאחים גדולים שמצטרפים לחלק מהצילום.",
-    details: ["מתאים לגילאי 5–30 ימים", "אפשרות לצילום עם אחים", "אביזרים מתחלפים"],
-    tags: ["פיקניק", "משבצות", "קש"],
-    options: [
-      { key: "cloth", label: "מפה", choices: [
-        { value: "gingham", label: "משבצות" },
-        { value: "linen",   label: "פשתן חלק" }
-      ]},
-      { key: "prop", label: "אביזר", choices: [
-        { value: "basket", label: "סלסלת פיקניק" },
-        { value: "hat",    label: "כובע קש" },
-        { value: "vase",   label: "כד ופרחים" }
-      ]},
-      { key: "tone", label: "גוון", tone: true, choices: ["pink", "peach"] }
-    ],
-    draw: drawPicnicSet
-  }
+/* ---------- המוצרים ---------- */
+const PRODUCTS = [
+  /* אישי – 250 גרם */
+  p("choc-cup", "choc", "personal", ["chocolate"], 35, "creamy", 730,
+    "גלידה בטעם שוקולד בלגי עם כדורי שוקולד ופירורי וופל.",
+    "גלידה בטעם שוקולד בלגי עם כדורי שוקולד ופירורי וופל משובח, עשויה משמנת משובחת בעלת מרקם עשיר וקטיפתי. אז בואו להגשים חלום ולטעום גלידה אחרת שלא דמיינתם!",
+    { tags: ["חלבי", "מתוק", "אישי"] }),
+  p("vanilla-cup", "vanilla", "personal", ["chocolate"], 35, "creamy", 610,
+    "וניל אמיתי ממדגסקר, שמנת טרייה ונגיעה של חלום.",
+    "גלידת וניל קלאסית שמכינים ממקלות וניל אמיתיים ממדגסקר ומשמנת טרייה. מרקם חלק ועדין, עם הנקודות השחורות של הווניל שמעידות על האיכות.",
+    { tags: ["חלבי", "קלאסי", "אישי"], allergenFree: true }),
+  p("straw-cup", "straw", "personal", ["fruit"], 35, "creamy", 540,
+    "תותים טריים ושמנת – ורוד, רענן ומתוק במידה.",
+    "תותים טריים שנקטפו בשיא העונה, מעורבבים בשמנת מתוקה, עם רצועות רוטב תות ביתי. ורודה, רעננה ומתוקה בדיוק במידה.",
+    { tags: ["חלבי", "פירותי", "אישי"], allergenFree: true }),
+  p("pistachio-cup", "pistachio", "personal", ["special"], 39, "creamy", 690,
+    "פיסטוק קלוי טחון דק, משי טהור בכל כפית.",
+    "פיסטוקים קלויים שנטחנים לממרח משיי ומתמזגים בשמנת. עם שבבי פיסטוק פריכים לאורך כל הגביע.",
+    { tags: ["חלבי", "אגוזים", "אישי"], isNew: true }),
+  p("caramel-cup", "caramel", "personal", ["caramel"], 37, "chunky", 650,
+    "קרמל ביתי עם קורט מלח ים ושבבי טופי.",
+    "קרמל שמבושל אצלנו לאט עד לגוון הענברי המושלם, קורט מלח ים אטלנטי ושבבי טופי פריכים. מתוק-מלוח שאי אפשר להפסיק.",
+    { tags: ["חלבי", "מתוק-מלוח", "אישי"] }),
+  p("cookies-cup", "cookies", "personal", ["chocolate"], 37, "chunky", 720,
+    "שמנת לבנה עם המון עוגיות שוקולד פריכות.",
+    "בסיס שמנת לבנה ועדינה, עם המון קטעי עוגיות שוקולד פריכות. הטעם שכולם במשפחה מסכימים עליו.",
+    { tags: ["חלבי", "עוגיות", "אישי"] }),
+  p("dulce-cup", "dulce", "personal", ["caramel"], 37, "creamy", 480,
+    "ריבת חלב סמיכה מתערבלת בגלידת שמנת.",
+    "גלידת שמנת עם עורקים עבים של ריבת חלב סמיכה ומתקתקה. חמה, עוטפת ומזכירה ילדות.",
+    { tags: ["חלבי", "מתוק", "אישי"], allergenFree: true }),
+  p("hazelnut-cup", "hazelnut", "personal", ["caramel"], 39, "chunky", 455,
+    "אגוזי לוז מסוכרים וקרמל בגלידה פרלינית.",
+    "גלידת פרלין אגוזי לוז עם אגוזים מסוכרים וגלי קרמל. עשירה, פריכה ומפנקת.",
+    { tags: ["חלבי", "אגוזים", "אישי"] }),
+  p("coffee-cup", "coffee", "personal", ["special"], 37, "creamy", 390,
+    "אספרסו כפול וגרגירי קפה מצופים שוקולד.",
+    "גלידת אספרסו כפול מפולי קפה קלויים טריים, עם גרגירי קפה מצופים בשוקולד מריר.",
+    { tags: ["חלבי", "קפה", "אישי"] }),
+  p("mango-cup", "mango", "personal", ["fruit"], 33, "sorbet", 505,
+    "סורבה מנגו ופסיפלורה – פרווה, רענן וקיצי.",
+    "סורבה פירות טהור ממחית מנגו בשל ופסיפלורה חמצמצה. פרווה, ללא שמנת וללא ביצים, ומרענן במיוחד.",
+    { tags: ["פרווה", "סורבה", "אישי"], allergenFree: true }),
+  p("lemon-cup", "lemon", "personal", ["fruit"], 33, "sorbet", 360,
+    "לימון סחוט ונענע טרייה – קליל ומרענן.",
+    "סורבה לימונים סחוטים עם עלי נענע טריים. פרווה וקליל, בדיוק מה שצריך אחרי ארוחה.",
+    { tags: ["פרווה", "סורבה", "אישי"], allergenFree: true }),
+  p("chocsf-cup", "chocsf", "personal", ["chocolate"], 37, "creamy", 340,
+    "כל העושר של השוקולד – בלי תוספת סוכר.",
+    "גלידת שוקולד עשירה שממותקת בממתיקים טבעיים, ללא תוספת סוכר. כל הטעם, בלי הסוכר.",
+    { tags: ["חלבי", "ללא סוכר", "אישי"], sugarFree: true }),
+  p("vanillasf-cup", "vanillasf", "personal", ["chocolate"], 37, "creamy", 280,
+    "וניל עדין ללא תוספת סוכר, קטיפתי כמו המקור.",
+    "גלידת וניל ללא תוספת סוכר, ממותקת באריתריטול וסטיביה. קטיפתית כמו המקור.",
+    { tags: ["חלבי", "ללא סוכר", "אישי"], sugarFree: true, allergenFree: true }),
+  p("honeyfig-cup", "honeyfig", "personal", ["limited", "special"], 42, "chunky", 410,
+    "מהדורה מוגבלת: דבש פרחי בר וריבת תאנים.",
+    "מהדורה מוגבלת לעונה: גלידת דבש פרחי בר עם עורקי ריבת תאנים ואגוזי מלך מקורמלים. נמכרת עד גמר המלאי.",
+    { tags: ["חלבי", "מהדורה מוגבלת", "אישי"], limited: true }),
+  p("halva-cup", "halva", "personal", ["limited", "special"], 42, "chunky", 395,
+    "מהדורה מוגבלת: חלבה פריכה וסילאן תמרים.",
+    "מהדורה מוגבלת: גלידת טחינה עם קטעי חלבה פריכה ושכבות סילאן תמרים. שילוב מקומי ומפתיע.",
+    { tags: ["חלבי", "מהדורה מוגבלת", "אישי"], limited: true }),
+
+  /* משפחתי – 1 / 2 ליטר */
+  p("choc-family", "choc", "family", ["chocolate"], 79, "creamy", 580,
+    "השוקולד החלומי בגודל שמספיק לכל המשפחה.",
+    "גלידת השוקולד הבלגי האהובה שלנו בקופסה משפחתית. מספיקה לכולם, ואפילו לסיבוב שני.",
+    { tags: ["חלבי", "משפחתי"] }),
+  p("cookies-family", "cookies", "family", ["chocolate"], 79, "chunky", 545,
+    "עוגיות ושמנת בקופסה גדולה לערבים מתוקים.",
+    "עוגיות ושמנת בקופסה משפחתית, עם המון קטעי עוגיות בכל שכבה.",
+    { tags: ["חלבי", "משפחתי"] }),
+  p("berries-family", "berries", "family", ["fruit"], 79, "creamy", 430,
+    "פירות יער אדומים בגלידת שמנת ורודה-סגולה.",
+    "תות, פטל, אוכמניות ודומדמניות בגלידת שמנת, עם רוטב פירות יער ביתי.",
+    { tags: ["חלבי", "פירותי", "משפחתי"], allergenFree: true }),
+  p("caramel-family", "caramel", "family", ["caramel"], 85, "chunky", 470,
+    "קרמל מלוח וטופי – בגרסה המשפחתית.",
+    "הקרמל המלוח שלנו עם שבבי טופי, בקופסה משפחתית לשולחן שבת או לאירוח.",
+    { tags: ["חלבי", "משפחתי"] }),
+  p("vanilla-family", "vanilla", "family", ["chocolate"], 75, "creamy", 400,
+    "וניל מדגסקר – הבסיס המושלם לכל קינוח.",
+    "גלידת וניל אמיתי בקופסה משפחתית. מתאימה לבד, ליד עוגה חמה או בתוך שייק.",
+    { tags: ["חלבי", "משפחתי"], allergenFree: true }),
+
+  /* על מקל */
+  p("choc-stick", "choc", "stick", ["chocolate"], 14, "chunky", 520,
+    "שלגון שוקולד בציפוי שוקולד בלגי ושקדים.",
+    "שלגון גלידת שוקולד בציפוי עבה של שוקולד בלגי מריר ושברי שקדים קלויים.",
+    { tags: ["חלבי", "על מקל"], coat: "#3a1f15", drizzle: "#d9b37c" }),
+  p("straw-stick", "straw", "stick", ["fruit"], 14, "creamy", 410,
+    "שלגון תות-שמנת בציפוי שוקולד לבן.",
+    "שלגון גלידת תות ושמנת בציפוי שוקולד לבן ופתיתי תות מיובש.",
+    { tags: ["חלבי", "על מקל"], coat: "#f8efe4", drizzle: "#e07a9a" }),
+  p("pistachio-stick", "pistachio", "stick", ["special"], 16, "creamy", 380,
+    "שלגון פיסטוק בציפוי שוקולד לבן ופיסטוקים.",
+    "שלגון גלידת פיסטוק בציפוי שוקולד לבן ופיסטוקים קצוצים.",
+    { tags: ["חלבי", "על מקל"], coat: "#fbf3e6", drizzle: "#8fa86a" }),
+  p("mango-stick", "mango", "stick", ["fruit"], 12, "sorbet", 300,
+    "ארטיק מנגו ללא תוספת סוכר – פרווה.",
+    "ארטיק פירות ממחית מנגו טהורה, ללא תוספת סוכר. פרווה, ללא אלרגנים עיקריים.",
+    { tags: ["פרווה", "ללא סוכר", "על מקל"], sugarFree: true, allergenFree: true }),
+
+  /* למסיבות */
+  p("party-6", "straw", "party", ["chocolate", "fruit", "caramel"], 189, "creamy", 470,
+    "מארז 6 גביעים אישיים בטעמים לבחירתכם.",
+    "מארז מתנה מהודר עם 6 גביעים אישיים של 250 גרם. בוחרים כל טעם, אפשר גם לחזור על אותו טעם, ואנחנו אורזים עם סרט.",
+    { tags: ["מארז", "מתנה", "למסיבות"], pack: { kind: "box", mode: "count", max: 6 } }),
+  p("party-bucket", "vanilla", "party", ["chocolate", "fruit", "caramel"], 199, "creamy", 350,
+    "דלי 3 ליטר בשלושה טעמים לבחירה.",
+    "דלי גלידה ענק של 3 ליטר, מחולק לשלושה תאים, ובכל תא טעם אחר לבחירתכם. מושלם לאירועים, לשבע ברכות ולמסיבות.",
+    { tags: ["3 ליטר", "למסיבות"], pack: { kind: "bucket", mode: "distinct", max: 3 } }),
+  p("party-tray", "choc", "party", ["chocolate", "fruit", "caramel"], 149, "creamy", 325,
+    "מגש 24 כדורי גלידה מוכנים להגשה.",
+    "מגש מוכן להגשה עם 24 כדורי גלידה בארבעה טעמים לבחירתכם, 6 כדורים מכל טעם. רק לפתוח ולהגיש.",
+    { tags: ["24 כדורים", "למסיבות"], pack: { kind: "tray", mode: "distinct", max: 4 } })
+];
+
+function p(id, flavor, type, groups, price, texture, likes, short, long, extra = {}) {
+  const weight = { personal: "250 גרם", family: "1 ליטר", stick: "90 מ\"ל", party: "" }[type];
+  return {
+    id, flavor, type, groups, price, texture, likes, short, long, weight,
+    name: extra.name || (type === "party" ? null : FLAVORS[flavor].name),
+    ...extra
+  };
+}
+
+/* שמות מוצרים מיוחדים */
+Object.assign(PRODUCTS.find((x) => x.id === "choc-stick"), { name: "שלגון שוקולד בלגי" });
+Object.assign(PRODUCTS.find((x) => x.id === "straw-stick"), { name: "שלגון תות שמנת" });
+Object.assign(PRODUCTS.find((x) => x.id === "pistachio-stick"), { name: "שלגון פיסטוק לבן" });
+Object.assign(PRODUCTS.find((x) => x.id === "mango-stick"), { name: "ארטיק מנגו" });
+Object.assign(PRODUCTS.find((x) => x.id === "party-6"), { name: "מארז 6 חלומות" });
+Object.assign(PRODUCTS.find((x) => x.id === "party-bucket"), { name: "דלי מסיבה 3 ליטר" });
+Object.assign(PRODUCTS.find((x) => x.id === "party-tray"), { name: "מגש 24 כדורים" });
+
+/* טעמים שאפשר לבחור במארזים */
+const PACK_FLAVORS = ["choc", "vanilla", "straw", "pistachio", "caramel", "cookies", "mango", "lemon", "dulce", "hazelnut", "berries", "coffee"];
+
+const BRANCHES = [
+  { city: "ירושלים",     address: "רחוב הדוגמה 12, מרכז העיר",   hours: "א׳–ה׳ 10:00–23:00 · ו׳ 9:00–14:00 · מוצ״ש משעה אחרי צאת השבת" },
+  { city: "בני ברק",     address: "רחוב הדוגמה 45",              hours: "א׳–ה׳ 10:00–23:30 · ו׳ 9:00–14:00 · מוצ״ש משעה אחרי צאת השבת" },
+  { city: "בית שמש",     address: "מרכז מסחרי, רחוב הדוגמה 3",  hours: "א׳–ה׳ 11:00–22:30 · ו׳ 9:00–13:30" },
+  { city: "מודיעין עילית", address: "רחוב הדוגמה 8",             hours: "א׳–ה׳ 11:00–22:00 · ו׳ 9:00–13:30" },
+  { city: "אלעד",        address: "מרכז מסחרי, רחוב הדוגמה 20", hours: "א׳–ה׳ 11:00–22:00 · ו׳ 9:00–13:30" },
+  { city: "אשדוד",       address: "רחוב הדוגמה 17",              hours: "א׳–ה׳ 10:00–23:00 · ו׳ 9:00–14:00" }
+];
+
+const REVIEWS = [
+  { who: "משפחת לוי",     flavor: "מארז 6 חלומות",  text: "הזמנו מארז לשמחה משפחתית, וכולם שאלו מאיפה הגלידה. האריזה מהממת והטעמים פשוט חלום." },
+  { who: "יעקב מ.",       flavor: "פיסטוק משי",     text: "גלידת הפיסטוק הכי טובה שטעמתי. מרגישים שיש שם פיסטוק אמיתי ולא רק צבע ירוק." },
+  { who: "משפחת כהן",     flavor: "עוגיות ושמנת",   text: "הקופסה המשפחתית נגמרת אצלנו תוך יום. הילדים כבר מחכים להזמנה הבאה." },
+  { who: "דוד ש.",        flavor: "ללא סוכר",       text: "סוף סוף גלידה ללא סוכר שבאמת טעימה. קרמית ועשירה, בלי טעם לוואי." },
+  { who: "משפחת פרידמן",  flavor: "קרמל מלוח",      text: "משלוח מהיר, הגלידה הגיעה קפואה לגמרי, והקרמל המלוח פשוט ממכר." }
 ];
 
 /* =========================================================
-   כלי ציור – SVG
+   עזרים
    ========================================================= */
-let uidCounter = 0;
-const uid = (p) => `${p}-${++uidCounter}`;
-const f = (n) => Number(n.toFixed(1));
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const money = (n) => `${n} ${CONFIG.currency}`;
+const byId = (id) => PRODUCTS.find((x) => x.id === id);
+let uidN = 0;
+const uid = () => `d${++uidN}`;
 
-/* דפוסי בד */
-function fabric(id, kind, base, deep) {
-  switch (kind) {
-    case "knit":
-      return `<pattern id="${id}" width="18" height="14" patternUnits="userSpaceOnUse">
-        <rect width="18" height="14" fill="${base}"/>
-        <path d="M0 0L4.5 7L9 0M9 0L13.5 7L18 0M0 7L4.5 14L9 7M9 7L13.5 14L18 7" fill="none" stroke="${deep}" stroke-opacity=".38" stroke-width="1.6" stroke-linecap="round"/>
-      </pattern>`;
-    case "fur":
-      return `<pattern id="${id}" width="12" height="12" patternUnits="userSpaceOnUse">
-        <rect width="12" height="12" fill="${base}"/>
-        <path d="M1 5q2.5-4 5 0M7 11q2.5-4 5 0" fill="none" stroke="${deep}" stroke-opacity=".3" stroke-width="1.1" stroke-linecap="round"/>
-      </pattern>`;
-    case "linen":
-      return `<pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse">
-        <rect width="6" height="6" fill="${base}"/>
-        <path d="M0 3h6M3 0v6" stroke="${deep}" stroke-opacity=".16" stroke-width=".8"/>
-      </pattern>`;
-    case "gingham":
-      return `<pattern id="${id}" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(-8)">
-        <rect width="22" height="22" fill="#fffaf6"/>
-        <rect width="11" height="22" fill="${base}" fill-opacity=".7"/>
-        <rect width="22" height="11" fill="${base}" fill-opacity=".7"/>
-      </pattern>`;
-    case "weave":
-      return `<pattern id="${id}" width="16" height="12" patternUnits="userSpaceOnUse">
-        <rect width="16" height="12" fill="${base}"/>
-        <path d="M1 3h6M9 9h6" stroke="${deep}" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>
-        <path d="M8 0v6M0 6v6M16 6v6" stroke="${deep}" stroke-opacity=".35" stroke-width="1.4"/>
-      </pattern>`;
-    case "wood":
-      return `<pattern id="${id}" width="44" height="12" patternUnits="userSpaceOnUse">
-        <rect width="44" height="12" fill="${base}"/>
-        <path d="M0 3q11-2.5 22 0t22 0M0 8.5q11 2 22 0t22 0" fill="none" stroke="${deep}" stroke-opacity=".3" stroke-width=".9"/>
-      </pattern>`;
-    case "satin":
-      return `<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="${base}"/>
-        <stop offset=".45" stop-color="#fff" stop-opacity=".9"/>
-        <stop offset=".55" stop-color="${base}"/>
-        <stop offset="1" stop-color="${deep}"/>
-      </linearGradient>`;
-    default: /* jersey */
-      return `<pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse">
-        <rect width="6" height="6" fill="${base}"/>
-        <path d="M3 0v6" stroke="${deep}" stroke-opacity=".22" stroke-width=".9"/>
-      </pattern>`;
+const store = {
+  get(key, fallback) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* מצב פרטי – ממשיכים בלי שמירה */ }
   }
+};
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-/* מסגרת הסצנה: קיר, רצפה, אור רך וטקסטורת גרעין עדינה */
-function scene(u, c, defs, body, label) {
-  return `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${label}">
+/* הכהיה/הבהרה של צבע hex */
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1), 16);
+  const t = amt < 0 ? 0 : 255;
+  const a = Math.abs(amt);
+  const ch = (v) => Math.round((t - v) * a + v);
+  const r = ch(n >> 16), g = ch((n >> 8) & 255), b = ch(n & 255);
+  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+}
+
+/* בדיקה אם קובץ תמונה קיים */
+const imgCache = new Map();
+function imageExists(src) {
+  if (!imgCache.has(src)) {
+    imgCache.set(src, new Promise((res) => {
+      const i = new Image();
+      i.onload = () => res(true);
+      i.onerror = () => res(false);
+      i.src = src;
+    }));
+  }
+  return imgCache.get(src);
+}
+
+/* מחליף איורים בתמונות אמיתיות אם הועלו */
+function hydrateImages(root = document) {
+  $$("[data-img]", root).forEach((box) => {
+    const src = `images/products/${box.dataset.img}.png`;
+    imageExists(src).then((ok) => {
+      if (!ok) return;
+      const img = new Image();
+      img.src = src;
+      img.alt = box.getAttribute("aria-label") || "";
+      img.loading = "lazy";
+      box.replaceChildren(img);
+    });
+  });
+}
+
+/* =========================================================
+   איורים – SVG
+   ========================================================= */
+function tubSVG(f, { big = false, label = "" } = {}) {
+  const u = uid();
+  const top = big ? 52 : 66, bot = big ? 182 : 172;
+  const tw = big ? 90 : 72, bw = big ? 76 : 58;
+  const cx = 110;
+  const fs = big ? 46 : 40;
+  const ly = big ? 122 : 120;
+  return `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
-      <linearGradient id="${u}-wall" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="${c.wall}"/><stop offset="1" stop-color="${c.wall2}"/>
+      <linearGradient id="${u}b" x1="0" x2="1">
+        <stop offset="0" stop-color="${shade(f.body, -.25)}"/><stop offset=".35" stop-color="${shade(f.body, .1)}"/>
+        <stop offset=".7" stop-color="${f.body}"/><stop offset="1" stop-color="${shade(f.body, -.3)}"/>
       </linearGradient>
-      <radialGradient id="${u}-glow" cx=".25" cy=".15" r=".9">
-        <stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
-      </radialGradient>
-      <linearGradient id="${u}-shade" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#fff" stop-opacity=".3"/>
-        <stop offset=".55" stop-color="#fff" stop-opacity="0"/>
-        <stop offset="1" stop-color="#5a3a36" stop-opacity=".14"/>
+      <linearGradient id="${u}l" x1="0" x2="1">
+        <stop offset="0" stop-color="${shade(f.lid, -.25)}"/><stop offset=".4" stop-color="${shade(f.lid, .12)}"/><stop offset="1" stop-color="${shade(f.lid, -.3)}"/>
       </linearGradient>
-      <filter id="${u}-soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
-      <filter id="${u}-grain" x="0" y="0" width="100%" height="100%">
-        <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/>
-        <feColorMatrix type="saturate" values="0"/>
-        <feComponentTransfer><feFuncA type="table" tableValues="0 .09"/></feComponentTransfer>
-      </filter>
-      ${defs}
+      <linearGradient id="${u}g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${shade(f.tx, .3)}"/><stop offset="1" stop-color="${shade(f.tx, -.12)}"/>
+      </linearGradient>
     </defs>
-    <rect width="400" height="300" fill="url(#${u}-wall)"/>
-    <path d="M0 214Q200 204 400 214V300H0Z" fill="${c.floor}"/>
-    <rect width="400" height="300" fill="url(#${u}-glow)"/>
-    ${body}
-    <rect width="400" height="300" filter="url(#${u}-grain)"/>
+    <ellipse cx="${cx}" cy="${bot + 8}" rx="${bw + 18}" ry="7" fill="#5a2a40" opacity=".16"/>
+    <path d="M${cx - tw} ${top}L${cx - bw} ${bot}Q${cx} ${bot + 12} ${cx + bw} ${bot}L${cx + tw} ${top}Z" fill="url(#${u}b)"/>
+    <path d="M${cx - tw + 12} ${top + 6}L${cx - bw + 10} ${bot - 6}L${cx - bw + 18} ${bot - 4}L${cx - tw + 22} ${top + 6}Z" fill="#fff" opacity=".13"/>
+    <rect x="${cx - tw - 7}" y="${top - 16}" width="${(tw + 7) * 2}" height="20" rx="5" fill="url(#${u}l)"/>
+    <ellipse cx="${cx}" cy="${top - 16}" rx="${tw + 7}" ry="${big ? 16 : 14}" fill="${shade(f.lid, .08)}"/>
+    <ellipse cx="${cx}" cy="${top - 16}" rx="${tw - 8}" ry="${big ? 11 : 9}" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.5"/>
+    <text x="${cx}" y="${ly}" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="${fs}" fill="url(#${u}g)">Dreamy</text>
+    <path d="M${cx + 46} ${ly - 30}l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="${f.tx}" opacity=".85"/>
+    <text x="${cx}" y="${ly + 22}" text-anchor="middle" font-family="Rubik, Arial, sans-serif" font-size="${big ? 10 : 9}" letter-spacing="2" fill="${f.tx}" opacity=".9">${f.en}</text>
+    <g fill="${f.bits}" opacity=".9">
+      <rect x="${cx + 26}" y="${bot - 30}" width="9" height="9" rx="2" transform="rotate(20 ${cx + 30} ${bot - 26})"/>
+      <rect x="${cx + 40}" y="${bot - 44}" width="7" height="7" rx="2" transform="rotate(-15 ${cx + 43} ${bot - 41})"/>
+      <circle cx="${cx - 34}" cy="${bot - 24}" r="3"/>
+    </g>
+    ${label ? `<g><rect x="${cx - 26}" y="${bot - 22}" width="52" height="16" rx="8" fill="${f.tx}"/><text x="${cx}" y="${bot - 10.5}" text-anchor="middle" font-family="Rubik, Arial" font-size="9" font-weight="600" fill="${f.body}">${label}</text></g>` : ""}
   </svg>`;
 }
 
-const shadow = (u, cx, cy, rx, ry = 10, op = .16) =>
-  `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#5a3a36" opacity="${op}" filter="url(#${u}-soft)"/>`;
-
-function starPoints(x, y, r) {
-  const pts = [];
-  for (let i = 0; i < 10; i++) {
-    const a = -Math.PI / 2 + (i * Math.PI) / 5;
-    const rr = i % 2 ? r * .45 : r;
-    pts.push(`${f(x + rr * Math.cos(a))},${f(y + rr * Math.sin(a))}`);
-  }
-  return pts.join(" ");
-}
-
-const star = (x, y, r, col) =>
-  `<polygon points="${starPoints(x, y, r)}" fill="${col}" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/>`;
-
-function moon(u, x, y, r, col) {
-  const m = `${u}-moon`;
-  return `<mask id="${m}"><rect width="400" height="300" fill="#fff"/><circle cx="${x + r * .45}" cy="${y - r * .3}" r="${r * .82}" fill="#000"/></mask>
-    <circle cx="${x}" cy="${y}" r="${r}" fill="${col}" mask="url(#${m})"/>`;
-}
-
-function hangingMoon(u, x, y, col) {
-  return `<path d="M${x - 8} 0V${y - 22}" stroke="#bfa79c" stroke-width="1"/>
-    ${moon(u, x, y, 30, col)}
-    <path d="M${x - 62} 0V${y - 10}M${x + 52} 0V${y + 18}" stroke="#bfa79c" stroke-width="1"/>
-    ${star(x - 62, y - 2, 9, col)}${star(x + 52, y + 26, 7, col)}`;
-}
-
-function hangingStars(xs, col) {
-  const lens = [70, 110, 55, 95, 75, 120];
-  return xs.map((x, i) => {
-    const y = lens[i % lens.length];
-    return `<path d="M${x} 0V${y - 10}" stroke="#bfa79c" stroke-width="1"/>${star(x, y, 9 + (i % 3) * 2, col)}`;
-  }).join("");
-}
-
-function starGarland(x1, x2, y, sag, col) {
-  const mid = (x1 + x2) / 2;
-  let out = `<path d="M${x1} ${y}Q${mid} ${y + sag * 2} ${x2} ${y}" fill="none" stroke="#bfa79c" stroke-width="1.2"/>`;
-  for (let i = 1; i < 8; i++) {
-    const t = i / 8;
-    const px = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * mid + t * t * x2;
-    const py = (1 - t) * (1 - t) * y + 2 * (1 - t) * t * (y + sag * 2) + t * t * y;
-    out += `<path d="M${f(px)} ${f(py)}v10" stroke="#bfa79c" stroke-width=".8"/>${star(px, py + 17, i % 2 ? 7 : 5.5, col)}`;
-  }
-  return out;
-}
-
-function balloons(x, y, cols) {
-  const list = [[x - 30, y - 165, cols[0]], [x + 6, y - 190, cols[1]], [x + 34, y - 152, cols[2]]];
-  const strings = list.map(([bx, by]) =>
-    `<path d="M${x} ${y}Q${(bx + x) / 2 + 8} ${(by + y) / 2 + 30} ${bx} ${by + 31}" fill="none" stroke="#b9a29b" stroke-width="1"/>`).join("");
-  const heads = list.map(([bx, by, col]) =>
-    `<ellipse cx="${bx}" cy="${by}" rx="23" ry="28" fill="${col}"/>
-     <path d="M${bx - 3.5} ${by + 32}l3.5-5 3.5 5z" fill="${col}"/>
-     <ellipse cx="${bx - 8}" cy="${by - 10}" rx="5" ry="9" fill="#fff" opacity=".45" transform="rotate(-22 ${bx - 8} ${by - 10})"/>`).join("");
-  return `${strings}${heads}<rect x="${x - 7}" y="${y - 2}" width="14" height="11" rx="3" fill="${cols[2]}"/>`;
-}
-
-function teddy(x, y, col, dark, bow) {
-  const light = "#f3e3d3";
-  return `
-    <ellipse cx="${x - 16}" cy="${y - 7}" rx="13" ry="9" fill="${col}"/>
-    <ellipse cx="${x + 16}" cy="${y - 7}" rx="13" ry="9" fill="${col}"/>
-    <ellipse cx="${x}" cy="${y - 32}" rx="28" ry="31" fill="${col}"/>
-    <ellipse cx="${x}" cy="${y - 28}" rx="16" ry="19" fill="${light}" opacity=".55"/>
-    <ellipse cx="${x - 27}" cy="${y - 40}" rx="9" ry="17" fill="${col}" transform="rotate(28 ${x - 27} ${y - 40})"/>
-    <ellipse cx="${x + 27}" cy="${y - 40}" rx="9" ry="17" fill="${col}" transform="rotate(-28 ${x + 27} ${y - 40})"/>
-    <circle cx="${x - 19}" cy="${y - 99}" r="10" fill="${col}"/><circle cx="${x - 19}" cy="${y - 99}" r="5" fill="${light}"/>
-    <circle cx="${x + 19}" cy="${y - 99}" r="10" fill="${col}"/><circle cx="${x + 19}" cy="${y - 99}" r="5" fill="${light}"/>
-    <circle cx="${x}" cy="${y - 80}" r="26" fill="${col}"/>
-    <ellipse cx="${x}" cy="${y - 71}" rx="12" ry="9" fill="${light}"/>
-    <ellipse cx="${x}" cy="${y - 74}" rx="4" ry="3" fill="${dark}"/>
-    <path d="M${x - 4} ${y - 67}q4 3 8 0" fill="none" stroke="${dark}" stroke-width="1.3" stroke-linecap="round"/>
-    <circle cx="${x - 9}" cy="${y - 85}" r="2.4" fill="${dark}"/><circle cx="${x + 9}" cy="${y - 85}" r="2.4" fill="${dark}"/>
-    <path d="M${x} ${y - 55}l-14-7v14zM${x} ${y - 55}l14-7v14z" fill="${bow}"/><circle cx="${x}" cy="${y - 55}" r="3.5" fill="${bow}"/>`;
-}
-
-function flower(x, y, r, petal, center) {
-  let out = "";
-  for (let i = 0; i < 5; i++) {
-    const a = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-    out += `<circle cx="${f(x + Math.cos(a) * r * .58)}" cy="${f(y + Math.sin(a) * r * .58)}" r="${f(r * .52)}" fill="${petal}" stroke="#d9c2b8" stroke-opacity=".5" stroke-width=".6"/>`;
-  }
-  return out + `<circle cx="${x}" cy="${y}" r="${f(r * .3)}" fill="${center}"/>`;
-}
-
-function sprig(x, y, len, angle, col) {
-  let leaves = "";
-  for (let i = 1; i <= 5; i++) {
-    const ly = y - (len * i) / 6;
-    const s = 1 - i * .08;
-    leaves += `<ellipse cx="${x - 9 * s}" cy="${ly}" rx="${f(9 * s)}" ry="${f(5.5 * s)}" fill="${col}" transform="rotate(-25 ${x - 9 * s} ${ly})"/>
-               <ellipse cx="${x + 9 * s}" cy="${ly - 6}" rx="${f(9 * s)}" ry="${f(5.5 * s)}" fill="${col}" transform="rotate(25 ${x + 9 * s} ${ly - 6})"/>`;
-  }
-  return `<g transform="rotate(${angle} ${x} ${y})"><path d="M${x} ${y}V${y - len}" stroke="#8a9c84" stroke-width="1.5"/>${leaves}</g>`;
-}
-
-function flowerStem(x, y, len, angle, fc) {
-  return `<g transform="rotate(${angle} ${x} ${y})">
-    <path d="M${x} ${y}V${y - len}" stroke="#8a9c84" stroke-width="1.5"/>
-    <ellipse cx="${x - 7}" cy="${y - len * .45}" rx="8" ry="4" fill="#a7b9a0" transform="rotate(-30 ${x - 7} ${y - len * .45})"/>
-    ${flower(x, y - len, 12, fc.petal, fc.center)}</g>`;
-}
-
-/* תלולית בד – מקום המנוחה של התינוק */
-function mound(x, y, w, h, fill, deep) {
-  const l = x - w / 2, r = x + w / 2;
-  return `<path d="M${l} ${y}Q${l + w * .05} ${y - h} ${x} ${y - h * 1.05}Q${r - w * .05} ${y - h} ${r} ${y}Q${x} ${y + 14} ${l} ${y}Z" fill="${fill}"/>
-    <path d="M${l + w * .2} ${y - h * .55}Q${x - w * .1} ${y - h * .8} ${x - w * .05} ${y - h * .1}M${x + w * .15} ${y - h * .75}Q${r - w * .15} ${y - h * .6} ${r - w * .14} ${y - h * .05}" fill="none" stroke="${deep}" stroke-opacity=".28" stroke-width="2" stroke-linecap="round"/>`;
-}
-
-/* =========================================================
-   הסטים – פונקציות ציור
-   ========================================================= */
-function drawBlanketSet(s, u) {
-  const c = TONES[s.tone];
-  const base = s.blanket === "fur" ? "#fdf6f2" : c.main;
-  const deep = s.blanket === "fur" ? c.deep : c.deep;
-  const pouf = "M50 254Q56 170 185 162Q314 170 320 254Q185 272 50 254Z";
-  let el = "";
-  if (s.element === "balloons") el = balloons(300, 246, [c.main, "#fff8f3", c.deep]);
-  if (s.element === "teddy") el = teddy(330, 262, "#d8b896", "#6b4b3e", c.deep);
-  if (s.element === "moon") el = hangingMoon(u, 300, 82, "#e7cd9b");
-  const body = `
-    ${shadow(u, 185, 260, 140, 12)}
-    <path d="${pouf}" fill="url(#${u}-fab)"/>
-    <path d="${pouf}" fill="url(#${u}-shade)"/>
-    <path d="M90 210Q135 188 150 236M232 192Q275 205 280 248M70 252Q120 240 160 262" fill="none" stroke="${deep}" stroke-opacity=".3" stroke-width="2.2" stroke-linecap="round"/>
-    <ellipse cx="185" cy="186" rx="44" ry="13" fill="#fff" opacity=".25"/>
-    ${el}`;
-  return scene(u, c, fabric(`${u}-fab`, s.blanket, base, deep), body, "סט שמיכה ובלונים");
-}
-
-function drawWoodSet(s, u) {
-  const c = TONES.cream;
-  const wrapBase = s.wrap === "linen" ? "#efe3d1" : "#f3e7dc";
-  const wrapDeep = "#b89a78";
-  const defs = fabric(`${u}-wood`, "wood", "#c99c6e", "#7d5638") + fabric(`${u}-fab`, s.wrap, wrapBase, wrapDeep);
-  let base;
-  if (s.container === "bowl") {
-    base = `
-      ${shadow(u, 200, 258, 112, 11)}
-      <path d="M95 182A105 78 0 0 0 305 182Z" fill="url(#${u}-wood)"/>
-      <path d="M95 182A105 78 0 0 0 305 182Z" fill="url(#${u}-shade)"/>
-      ${mound(200, 186, 196, 46, `url(#${u}-fab)`, wrapDeep)}
-      <ellipse cx="200" cy="182" rx="105" ry="9" fill="none" stroke="#a87b52" stroke-width="5"/>
-      <path d="M178 183Q186 222 206 232Q222 212 226 183Z" fill="url(#${u}-fab)"/>
-      <path d="M178 183Q186 222 206 232Q222 212 226 183Z" fill="url(#${u}-shade)"/>`;
-  } else {
-    base = `
-      ${shadow(u, 200, 260, 120, 11)}
-      ${mound(200, 180, 214, 48, `url(#${u}-fab)`, wrapDeep)}
-      <rect x="92" y="176" width="216" height="82" rx="4" fill="url(#${u}-wood)"/>
-      <rect x="92" y="176" width="216" height="82" rx="4" fill="url(#${u}-shade)"/>
-      <path d="M92 203H308M92 230H308" stroke="#7d5638" stroke-opacity=".35" stroke-width="1.5"/>
-      <rect x="92" y="176" width="12" height="82" fill="#9c7049"/><rect x="296" y="176" width="12" height="82" fill="#9c7049"/>
-      <path d="M150 178Q160 212 182 220Q196 200 198 178Z" fill="url(#${u}-fab)"/>`;
-  }
-  const fc = FLOWER_COLORS.white;
-  const accent = s.accent === "leaves"
-    ? sprig(72, 258, 110, -14, "#a3b8a4") + sprig(95, 258, 80, 8, "#b5c6b1") + sprig(330, 258, 105, 14, "#a3b8a4")
-    : flowerStem(70, 258, 95, -12, fc) + flowerStem(92, 258, 70, 6, fc) + flowerStem(330, 258, 90, 12, fc) + flowerStem(312, 258, 62, -6, fc);
-  return scene(u, c, defs, base + accent, "סט עץ טבעי");
-}
-
-function drawBasketSet(s, u) {
-  const c = TONES.pink;
-  const lining = s.lining === "fur"
-    ? fabric(`${u}-fab`, "fur", "#fdf8f4", "#cdb4aa")
-    : fabric(`${u}-fab`, "satin", c.main, c.deep);
-  const defs = fabric(`${u}-weave`, "weave", "#dbb68c", "#93694a") + lining;
-  let basket;
-  if (s.shape === "round") {
-    basket = `
-      ${shadow(u, 200, 260, 112, 11)}
-      ${mound(200, 180, 200, 50, `url(#${u}-fab)`, c.deep)}
-      <path d="M96 178A104 82 0 0 0 304 178Z" fill="url(#${u}-weave)"/>
-      <path d="M96 178A104 82 0 0 0 304 178Z" fill="url(#${u}-shade)"/>
-      <ellipse cx="200" cy="178" rx="104" ry="9" fill="none" stroke="#b48a60" stroke-width="7" stroke-dasharray="7 3"/>
-      <path d="M230 178Q236 210 258 218Q266 200 268 178Z" fill="url(#${u}-fab)"/>`;
-  } else {
-    basket = `
-      ${shadow(u, 200, 258, 135, 11)}
-      <path d="M88 186Q70 120 110 128M312 186Q330 120 290 128" fill="none" stroke="#b48a60" stroke-width="7" stroke-linecap="round" stroke-dasharray="7 3"/>
-      ${mound(200, 188, 230, 46, `url(#${u}-fab)`, c.deep)}
-      <path d="M72 184Q200 300 328 184Z" fill="url(#${u}-weave)"/>
-      <path d="M72 184Q200 300 328 184Z" fill="url(#${u}-shade)"/>
-      <path d="M72 184H328" stroke="#b48a60" stroke-width="7" stroke-linecap="round" stroke-dasharray="7 3"/>`;
-  }
-  let accent;
-  if (s.accent === "stars") {
-    accent = starGarland(20, 380, 30, 34, "#e3c58f");
-  } else {
-    const fc = FLOWER_COLORS.pink;
-    accent = sprig(318, 236, 70, 30, "#a7b9a0") + flowerStem(322, 238, 64, 20, fc) + flowerStem(328, 240, 52, 40, FLOWER_COLORS.white) + flowerStem(316, 240, 40, 8, fc);
-  }
-  return scene(u, c, defs, basket + accent, "סט סל נצרים");
-}
-
-function drawCloudSet(s, u) {
-  const c = TONES[s.tone];
-  const cloudCol = c.light;
-  const defs = fabric(`${u}-fab`, s.blanket, c.main, c.deep);
-  const cloud = `
-    ${shadow(u, 200, 258, 130, 11)}
-    <g fill="${cloudCol}">
-      <circle cx="130" cy="218" r="36"/><circle cx="178" cy="190" r="50"/><circle cx="238" cy="198" r="44"/>
-      <circle cx="282" cy="222" r="32"/><rect x="92" y="212" width="220" height="44" rx="22"/>
+function stickSVG(f, prod) {
+  const u = uid();
+  const coat = prod.coat || f.body;
+  const dz = prod.drizzle || f.tx;
+  return `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="${u}c" x1="0" x2="1">
+        <stop offset="0" stop-color="${shade(coat, -.2)}"/><stop offset=".4" stop-color="${shade(coat, .15)}"/><stop offset="1" stop-color="${shade(coat, -.25)}"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="110" cy="190" rx="60" ry="6" fill="#5a2a40" opacity=".14"/>
+    <g transform="rotate(-18 110 100)">
+      <rect x="99" y="128" width="22" height="66" rx="10" fill="#e6c899"/>
+      <path d="M104 140v44M110 136v50M116 140v44" stroke="#c9a56f" stroke-width=".8" opacity=".6"/>
+      <rect x="66" y="12" width="88" height="134" rx="42" fill="url(#${u}c)"/>
+      <path d="M78 24q-6 40 0 100" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="7" stroke-linecap="round"/>
+      <path d="M140 18q8 6 10 18" fill="none" stroke="#fff" stroke-opacity=".15" stroke-width="4" stroke-linecap="round"/>
+      <path d="M70 52l16 -8 14 8 14 -8 14 8 14 -8 12 6M70 82l16 -8 14 8 14 -8 14 8 14 -8 12 6" fill="none" stroke="${dz}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
+      <circle cx="96" cy="112" r="3" fill="${f.scoop}"/><circle cx="124" cy="104" r="2.5" fill="${f.scoop}"/><circle cx="112" cy="124" r="2" fill="${f.scoop}"/>
+      <path d="M66 120q0 26 44 26t44-26" fill="${shade(coat, -.12)}" opacity=".35"/>
     </g>
-    <path d="M92 240Q200 262 312 240V234Q200 258 92 234Z" fill="${c.deep}" opacity=".12"/>
-    <path d="M120 202Q200 176 286 206L278 246Q200 260 128 246Z" fill="url(#${u}-fab)"/>
-    <path d="M120 202Q200 176 286 206L278 246Q200 260 128 246Z" fill="url(#${u}-shade)"/>
-    <path d="M128 246Q132 266 120 276M278 246Q274 266 288 274" fill="none" stroke="${c.main}" stroke-width="8" stroke-linecap="round"/>`;
-  const hang = s.hang === "moon"
-    ? hangingMoon(u, 210, 78, "#e7cd9b")
-    : hangingStars([70, 130, 175, 235, 285, 335], "#e3c58f");
-  return scene(u, c, defs, hang + cloud, "סט ענן חלומות");
+  </svg>`;
 }
 
-function drawFlowerSet(s, u) {
-  const c = TONES.cream;
-  const fc = FLOWER_COLORS[s.flowers];
-  const defs = fabric(`${u}-fab`, s.wrap, s.wrap === "fur" ? "#fdf8f4" : "#efe2d0", "#bfa283");
-  let frame, spots;
-  if (s.frame === "arch") {
-    frame = `<path d="M110 250V130A90 90 0 0 1 290 130V250" fill="none" stroke="#d2b07a" stroke-width="5" stroke-linecap="round"/>`;
-    spots = [[110, 200, 14], [114, 176, 11], [106, 224, 12], [124, 74, 13], [140, 56, 11], [112, 98, 10], [290, 230, 12], [292, 208, 9]];
-  } else {
-    frame = `<circle cx="200" cy="136" r="104" fill="none" stroke="#d2b07a" stroke-width="5"/>`;
-    spots = [110, 125, 140, 155, 170, 185].map((deg, i) => {
-      const a = (deg * Math.PI) / 180;
-      return [f(200 + 104 * Math.cos(a)), f(136 + 104 * Math.sin(a)), i % 2 ? 11 : 14];
-    });
-    spots.push([292, 108, 10], [300, 128, 8]);
+function scoopSVG(f, size = 100) {
+  const u = uid();
+  return `<svg viewBox="0 0 120 110" width="${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><radialGradient id="${u}s" cx=".35" cy=".3" r=".8">
+      <stop offset="0" stop-color="${shade(f.scoop, .35)}"/><stop offset=".6" stop-color="${f.scoop}"/><stop offset="1" stop-color="${shade(f.scoop, -.22)}"/>
+    </radialGradient></defs>
+    <path d="M14 70C6 30 40 6 62 8c28 2 50 26 44 58 6 4 6 12 0 14-4 6-10 4-14 8-6 4-12-2-18 2-6 4-12 2-16-2-6 4-14 4-18-2-6 2-12-2-12-8-6-2-8-8-8-10z" fill="url(#${u}s)"/>
+    <g fill="${f.bits}">
+      <rect x="40" y="40" width="7" height="7" rx="1.5" transform="rotate(25 43 43)"/>
+      <rect x="70" y="30" width="6" height="6" rx="1.5" transform="rotate(-20 73 33)"/>
+      <rect x="78" y="58" width="7" height="7" rx="1.5" transform="rotate(10 81 61)"/>
+      <circle cx="56" cy="64" r="2.6"/><circle cx="30" cy="58" r="2.2"/><circle cx="90" cy="44" r="2"/>
+    </g>
+  </svg>`;
+}
+
+function packSVG(prod, picks = []) {
+  const u = uid();
+  const fl = (i) => FLAVORS[picks[i] || PACK_FLAVORS[(i * 3 + 1) % PACK_FLAVORS.length]];
+  if (prod.pack.kind === "tray") {
+    const pos = [[62, 92], [96, 84], [130, 84], [164, 92], [78, 120], [112, 116], [146, 120]];
+    return `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="110" cy="176" rx="92" ry="10" fill="#5a2a40" opacity=".15"/>
+      <path d="M14 120h192l-14 46q-82 14-164 0z" fill="#f4d7df"/>
+      <path d="M14 120h192" stroke="#b4526b" stroke-width="3"/>
+      <text x="110" y="160" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="26" fill="#b4526b">Dreamy</text>
+      ${pos.map(([x, y], i) => `<g transform="translate(${x - 30} ${y - 46}) scale(.5)">${scoopSVG(fl(i % 4), 120).replace(/^<svg[^>]*>|<\/svg>$/g, "")}</g>`).join("")}
+    </svg>`;
   }
-  const leaves = spots.map(([x, y], i) =>
-    `<ellipse cx="${x + (i % 2 ? 10 : -10)}" cy="${y + 6}" rx="11" ry="5" fill="#a7b9a0" transform="rotate(${i % 2 ? 30 : -30} ${x} ${y})"/>`).join("");
-  const blooms = spots.map(([x, y, r]) => flower(x, y, r, fc.petal, fc.center)).join("");
-  const cushion = `
-    ${shadow(u, 200, 258, 110, 10)}
-    <path d="M100 248Q100 214 200 212Q300 214 300 248Q300 264 200 264Q100 264 100 248Z" fill="url(#${u}-fab)"/>
-    <path d="M100 248Q100 214 200 212Q300 214 300 248Q300 264 200 264Q100 264 100 248Z" fill="url(#${u}-shade)"/>
-    <path d="M140 228Q200 220 260 228" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>`;
-  return scene(u, c, defs, frame + leaves + blooms + cushion, "סט קשת פרחים");
-}
-
-function drawPicnicSet(s, u) {
-  const c = TONES[s.tone];
-  const defs = fabric(`${u}-cloth`, s.cloth, s.cloth === "gingham" ? c.main : c.light, c.deep)
-    + fabric(`${u}-pil`, "linen", "#fffaf5", "#c9b29f")
-    + fabric(`${u}-weave`, "weave", "#dbb68c", "#93694a");
-  const cloth = `
-    <path d="M40 300L95 222H305L360 300Z" fill="url(#${u}-cloth)"/>
-    <path d="M40 300L95 222H305L360 300Z" fill="url(#${u}-shade)"/>
-    ${s.cloth === "linen" ? `<path d="M95 222H305" stroke="${c.deep}" stroke-width="2" stroke-dasharray="3 4" opacity=".5"/>` : ""}
-    ${shadow(u, 180, 262, 80, 8)}
-    <path d="M110 256Q106 230 120 226L240 226Q254 230 250 256Q248 268 236 268L124 268Q112 268 110 256Z" fill="url(#${u}-pil)"/>
-    <path d="M110 256Q106 230 120 226L240 226Q254 230 250 256Q248 268 236 268L124 268Q112 268 110 256Z" fill="url(#${u}-shade)"/>
-    <path d="M128 236H232" stroke="${c.main}" stroke-width="2" opacity=".8"/>`;
-  let prop = "";
-  if (s.prop === "basket") {
-    prop = `${shadow(u, 306, 250, 42, 7)}
-      <path d="M272 205Q306 150 340 205" fill="none" stroke="#b48a60" stroke-width="6" stroke-linecap="round"/>
-      <path d="M266 204H346L338 250Q306 256 274 250Z" fill="url(#${u}-weave)"/>
-      <path d="M266 204H346L338 250Q306 256 274 250Z" fill="url(#${u}-shade)"/>
-      <path d="M270 210Q290 226 306 210Q322 226 342 210" fill="${c.main}" stroke="${c.deep}" stroke-width="1"/>`;
-  } else if (s.prop === "hat") {
-    prop = `${shadow(u, 306, 252, 52, 7)}
-      <ellipse cx="306" cy="242" rx="52" ry="15" fill="#e4c793"/>
-      <path d="M276 241Q276 202 306 202Q336 202 336 241Z" fill="#ecd3a3"/>
-      <path d="M277 232Q306 240 335 232V240Q306 248 277 240Z" fill="${c.deep}"/>
-      <path d="M262 244Q306 256 350 244" fill="none" stroke="#c9a46c" stroke-width="1" stroke-dasharray="3 3"/>
-      ${flower(330, 236, 9, c.light, c.deep)}`;
-  } else {
-    const fc = { petal: c.main, center: c.deep };
-    prop = `${shadow(u, 312, 252, 30, 6)}
-      ${flowerStem(305, 200, 46, -18, fc)}${flowerStem(314, 200, 58, 4, FLOWER_COLORS.white)}${flowerStem(322, 200, 40, 22, fc)}
-      <path d="M296 200H330Q328 214 336 228Q340 252 313 254Q286 252 290 228Q298 214 296 200Z" fill="#f4ede4" stroke="#d9c8b6"/>
-      <path d="M292 224Q313 232 334 224" fill="none" stroke="${c.deep}" stroke-width="2" opacity=".5"/>`;
+  if (prod.pack.kind === "bucket") {
+    const cols = [0, 1, 2].map(fl);
+    return `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="110" cy="188" rx="78" ry="7" fill="#5a2a40" opacity=".15"/>
+      <path d="M30 70Q110 -10 190 70" fill="none" stroke="#b48d5d" stroke-width="5"/>
+      <ellipse cx="110" cy="68" rx="84" ry="18" fill="#f6e9ec"/>
+      <path d="M30 68q20-14 54-14v28q-34 0-54-14z" fill="${cols[0].scoop}"/>
+      <path d="M84 54h52v30h-52z" fill="${cols[1].scoop}"/>
+      <path d="M136 54q34 0 54 14-20 14-54 14z" fill="${cols[2].scoop}"/>
+      <path d="M26 72L42 182Q110 196 178 182L194 72Q110 92 26 72Z" fill="#f4d7df"/>
+      <path d="M26 72Q110 92 194 72" fill="none" stroke="#b4526b" stroke-width="5"/>
+      <text x="110" y="140" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="44" fill="#b4526b">Dreamy</text>
+      <text x="110" y="164" text-anchor="middle" font-family="Rubik, Arial" font-size="11" letter-spacing="3" fill="#b48d5d">PARTY · 3L</text>
+    </svg>`;
   }
-  return scene(u, c, defs, cloth + prop, "סט פיקניק קטן");
-}
-
-/* =========================================================
-   עזרי מצב ובחירות
-   ========================================================= */
-const defaultsOf = (set) =>
-  Object.fromEntries(set.options.map((o) => [o.key, choiceValue(o.choices[0])]));
-
-const choiceValue = (ch) => (typeof ch === "string" ? ch : ch.value);
-
-function choiceLabel(opt, value) {
-  if (opt.tone) return TONES[value].label;
-  if (opt.flower) return `פרחים ${FLOWER_COLORS[value].label}`;
-  return opt.choices.find((ch) => ch.value === value).label;
-}
-
-const selectionList = (set, sel) =>
-  set.options.map((o) => ({ label: o.label, value: choiceLabel(o, sel[o.key]) }));
-
-const imagePath = (name) => `${CONFIG.imageFolder}${name}${CONFIG.imageExt}`;
-
-/* בדיקה האם קובץ תמונה קיים (עובד גם בפתיחה ישירה מהמחשב) */
-const imageCache = new Map();
-function imageExists(src) {
-  if (!imageCache.has(src)) {
-    imageCache.set(src, new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      img.src = src;
-    }));
-  }
-  return imageCache.get(src);
-}
-
-function makeImg(src, alt) {
-  const img = document.createElement("img");
-  img.src = src;
-  img.alt = alt;
-  img.loading = "lazy";
-  img.decoding = "async";
-  return img;
-}
-
-function mailto(subject, body = "") {
-  let link = `mailto:${CONFIG.email}?subject=${encodeURIComponent(subject)}`;
-  if (body) link += `&body=${encodeURIComponent(body)}`;
-  return link;
-}
-
-/* =========================================================
-   בניית הדף
-   ========================================================= */
-function applyConfig() {
-  document.querySelectorAll("[data-config]").forEach((el) => {
-    const v = CONFIG[el.dataset.config];
-    if (v) el.textContent = v;
-  });
-  document.title = document.title.replace("[שם הצלמת]", CONFIG.name);
-  const greeting = "שלום,\nאשמח לשמוע פרטים על צילום ניובורן.\n\nתאריך לידה משוער / תאריך לידה:\n";
-  document.querySelectorAll("[data-mailto]").forEach((a) => {
-    a.href = mailto(CONFIG.contactSubject, greeting);
-  });
-  document.getElementById("year").textContent = new Date().getFullYear();
-}
-
-function buildGallery() {
-  const grid = document.getElementById("gallery-grid");
-  const frag = document.createDocumentFragment();
-
-  SETS.forEach((set) => {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "work-card";
-    card.setAttribute("aria-haspopup", "dialog");
-    card.setAttribute("aria-label", `${set.title} – פתיחה והתאמה אישית`);
-
-    const media = document.createElement("div");
-    media.className = "card-media";
-    media.innerHTML = set.draw(defaultsOf(set), uid(`c${set.id}`)) + `<span class="card-hint">לצפייה והתאמה ←</span>`;
-
-    const src = imagePath(`work-${set.id}`);
-    imageExists(src).then((ok) => {
-      if (ok) media.replaceChild(makeImg(src, set.title), media.querySelector("svg"));
-    });
-
-    const body = document.createElement("div");
-    body.className = "card-body";
-    body.innerHTML = `<h3>${set.title}</h3><p>${set.short}</p>
-      <div class="card-tags">${set.tags.map((t) => `<span>${t}</span>`).join("")}</div>`;
-
-    card.append(media, body);
-    card.addEventListener("click", () => openModal(set, card));
-    frag.append(card);
-  });
-
-  grid.append(frag);
-  revealOnScroll(grid.querySelectorAll(".work-card"));
-}
-
-function buildHero() {
-  const set = SETS[3]; /* ענן חלומות – קומפוזיציה מרכזית שמתאימה למסגרת הקשת */
-  document.getElementById("hero-art").innerHTML = set.draw(defaultsOf(set), uid("hero"));
-}
-
-function revealOnScroll(items) {
-  if (!("IntersectionObserver" in window)) {
-    items.forEach((el) => el.classList.add("is-visible"));
-    return;
-  }
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) {
-        const i = [...items].indexOf(e.target);
-        e.target.style.transitionDelay = `${(i % 3) * 90}ms`;
-        e.target.classList.add("is-visible");
-        e.target.addEventListener("transitionend", () => (e.target.style.transitionDelay = ""), { once: true });
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: .15 });
-  items.forEach((el) => io.observe(el));
-}
-
-/* =========================================================
-   חלונית מוגדלת + מנגנון ההתאמה
-   ========================================================= */
-const modal = document.getElementById("modal");
-const ui = {
-  visual: document.getElementById("modal-visual"),
-  badge: document.getElementById("modal-badge"),
-  eyebrow: document.getElementById("modal-eyebrow"),
-  title: document.getElementById("modal-title"),
-  desc: document.getElementById("modal-desc"),
-  details: document.getElementById("modal-details"),
-  groups: document.getElementById("customizer-groups"),
-  selection: document.getElementById("selection-text"),
-  cta: document.getElementById("modal-cta"),
-  reset: document.getElementById("modal-reset")
-};
-
-const state = { set: null, sel: null, opener: null, renderToken: 0 };
-
-function openModal(set, opener) {
-  state.set = set;
-  state.sel = defaultsOf(set);
-  state.opener = opener;
-
-  ui.eyebrow.textContent = `סט מס' ${set.id}`;
-  ui.title.textContent = set.title;
-  ui.desc.textContent = set.desc;
-  ui.details.innerHTML = set.details.map((d) => `<li>${d}</li>`).join("");
-  buildCustomizer(set);
-  update(false);
-
-  modal.hidden = false;
-  modal.classList.remove("is-closing");
-  document.body.classList.add("no-scroll");
-  modal.querySelector(".modal-body").scrollTop = 0;
-  modal.querySelector(".modal-close").focus();
-}
-
-function closeModal() {
-  if (modal.hidden || modal.classList.contains("is-closing")) return;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const done = () => {
-    modal.hidden = true;
-    modal.classList.remove("is-closing");
-    document.body.classList.remove("no-scroll");
-    state.opener?.focus();
-  };
-  if (reduce) return done();
-  modal.classList.add("is-closing");
-  setTimeout(done, 240);
-}
-
-function buildCustomizer(set) {
-  ui.groups.innerHTML = set.options.map((opt) => {
-    const chips = opt.choices.map((ch) => {
-      const value = choiceValue(ch);
-      let swatch = "";
-      if (opt.tone) swatch = `<i class="swatch" style="background:${TONES[value].main}"></i>`;
-      if (opt.flower) swatch = `<i class="swatch" style="background:${FLOWER_COLORS[value].petal}"></i>`;
-      const label = opt.tone ? TONES[value].label : opt.flower ? FLOWER_COLORS[value].label : ch.label;
-      return `<label class="chip">
-          <input type="radio" name="opt-${opt.key}" value="${value}" ${state.sel[opt.key] === value ? "checked" : ""}>
-          <span>${swatch}${label}</span>
-        </label>`;
-    }).join("");
-    return `<fieldset class="option-group"><legend>${opt.label}</legend><div class="option-choices">${chips}</div></fieldset>`;
+  /* box: 6 גביעים */
+  const minis = [0, 1, 2].map((i) => {
+    const f = fl(i);
+    const x = 46 + i * 64;
+    return `<g><path d="M${x - 22} 62L${x - 18} 100H${x + 18}L${x + 22} 62Z" fill="${f.body}"/>
+      <rect x="${x - 25}" y="54" width="50" height="10" rx="3" fill="${f.lid}"/>
+      <ellipse cx="${x}" cy="54" rx="25" ry="6" fill="${shade(f.lid, .1)}"/>
+      <text x="${x}" y="86" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="13" fill="${f.tx}">Dreamy</text></g>`;
   }).join("");
+  return `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="110" cy="186" rx="92" ry="8" fill="#5a2a40" opacity=".15"/>
+    ${minis}
+    <path d="M14 88h192v86a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8z" fill="#f4d7df"/>
+    <path d="M14 88h192l-10-14H24z" fill="#ecc4cf"/>
+    <rect x="102" y="88" width="16" height="94" fill="#b4526b" opacity=".85"/>
+    <path d="M110 92c-14-14-30-6-20 4 6 6 20 0 20-4zM110 92c14-14 30-6 20 4-6 6-20 0-20-4z" fill="#b4526b"/>
+    <text x="58" y="142" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="28" fill="#b4526b">Dreamy</text>
+    <text x="164" y="142" text-anchor="middle" font-family="Rubik, Arial" font-size="12" letter-spacing="2" fill="#b48d5d">6 PACK</text>
+  </svg>`;
 }
 
-ui.groups.addEventListener("change", (e) => {
-  const input = e.target;
-  if (input.type !== "radio") return;
-  state.sel[input.name.replace("opt-", "")] = input.value;
-  update(true);
-});
-
-ui.reset.addEventListener("click", () => {
-  state.sel = defaultsOf(state.set);
-  buildCustomizer(state.set);
-  update(true);
-});
-
-/* עדכון התצוגה בזמן אמת */
-function update(animate) {
-  const { set, sel } = state;
-  const token = ++state.renderToken;
-  const list = selectionList(set, sel);
-
-  ui.selection.textContent = list.map((x) => x.value).join(" · ");
-  renderVisual(set.draw(sel, uid(`m${set.id}`)), animate);
-  ui.badge.textContent = `המחשת הסט לפי הבחירות שלך: ${list.map((x) => x.value).join(", ")}`;
-
-  const body = `שלום,\nאהבתי את הסט "${set.title}" ואשמח לתאם צילום.\n\nהבחירות שלי:\n`
-    + list.map((x) => `• ${x.label}: ${x.value}`).join("\n")
-    + "\n\nתאריך לידה משוער / תאריך לידה:\n";
-  ui.cta.href = mailto(`בקשה לסט: ${set.title}`, body);
-
-  /* תמונה אמיתית: קודם לשילוב המדויק, ואם זו בחירת ברירת המחדל – תמונת הכרטיס */
-  const isDefault = Object.entries(defaultsOf(set)).every(([k, v]) => sel[k] === v);
-  const variant = imagePath(`work-${set.id}-${set.options.map((o) => sel[o.key]).join("-")}`);
-  const candidates = [variant, ...(isDefault ? [imagePath(`work-${set.id}`)] : [])];
-
-  (async () => {
-    for (const src of candidates) {
-      if (await imageExists(src)) {
-        if (token !== state.renderToken) return;
-        renderVisual(makeImg(src, `${set.title}: ${ui.selection.textContent}`), false);
-        ui.badge.textContent = `צילום מתוך הסט: ${list.map((x) => x.value).join(", ")}`;
-        return;
-      }
-    }
-  })();
+function productArt(prod, picks) {
+  const f = FLAVORS[prod.flavor];
+  if (prod.type === "family") return tubSVG(f, { big: true, label: "FAMILY" });
+  if (prod.type === "stick") return stickSVG(f, prod);
+  if (prod.type === "party") return packSVG(prod, picks);
+  return tubSVG(f, { label: prod.limited ? "LIMITED" : prod.sugarFree ? "NO SUGAR" : "" });
 }
 
-function renderVisual(content, animate) {
-  if (typeof content === "string") ui.visual.innerHTML = content;
-  else ui.visual.replaceChildren(content);
-  if (animate) {
-    ui.visual.classList.remove("is-updating");
-    void ui.visual.offsetWidth;
-    ui.visual.classList.add("is-updating");
-  }
+/* =========================================================
+   סל קניות – מצב
+   ========================================================= */
+let cart = store.get("dreamy-cart", []);
+let likes = store.get("dreamy-likes", {});
+
+function saveCart() {
+  store.set("dreamy-cart", cart);
+  renderCart();
 }
 
-/* סגירה: כפתור, רקע, Esc + שמירת פוקוס בתוך החלונית */
-modal.addEventListener("click", (e) => {
-  if (e.target.closest("[data-close]")) closeModal();
-});
+function addToCart(prod, { qty = 1, size = null, picks = [] } = {}) {
+  const sizeObj = size ? SIZES[prod.type].find((s) => s.key === size) : null;
+  const price = sizeObj ? sizeObj.price : prod.price;
+  const key = [prod.id, size || "", picks.slice().sort().join(".")].join("|");
+  const found = cart.find((l) => l.key === key);
+  if (found) found.qty += qty;
+  else cart.push({ key, id: prod.id, size, sizeLabel: sizeObj?.label || "", picks, price, qty });
+  saveCart();
+  const badge = $("#cart-count");
+  badge.classList.remove("bump");
+  void badge.offsetWidth;
+  badge.classList.add("bump");
+  toast(`${prod.name} נוסף לסל 🍨`);
+}
 
-document.addEventListener("keydown", (e) => {
-  if (modal.hidden) return;
-  if (e.key === "Escape") {
-    e.preventDefault();
-    closeModal();
+const cartCount = () => cart.reduce((s, l) => s + l.qty, 0);
+const subtotal = () => cart.reduce((s, l) => s + l.qty * l.price, 0);
+
+function pickSummary(picks) {
+  const counts = {};
+  picks.forEach((k) => (counts[k] = (counts[k] || 0) + 1));
+  return Object.entries(counts).map(([k, n]) => (n > 1 ? `${FLAVORS[k].name} ×${n}` : FLAVORS[k].name)).join(", ");
+}
+
+function renderCart() {
+  const count = cartCount();
+  const badge = $("#cart-count");
+  badge.textContent = count;
+  badge.hidden = count === 0;
+
+  const body = $("#cart-items");
+  const foot = $("#cart-foot");
+
+  if (!cart.length) {
+    body.innerHTML = `<div class="cart-empty"><div class="art">${scoopSVG(FLAVORS.straw, 120)}</div>
+      <p>הסל עדיין ריק… אבל החלום רק מתחיל.</p>
+      <a href="#shop" class="btn btn-primary btn-sm" data-close-cart>לכל הטעמים</a></div>`;
+    foot.hidden = true;
     return;
   }
-  if (e.key === "Tab") {
-    const focusables = [...modal.querySelectorAll("button, a[href], input:checked, input:not([type=radio])")]
-      .filter((el) => !el.disabled && el.offsetParent !== null);
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  }
+
+  foot.hidden = false;
+  body.innerHTML = cart.map((l) => {
+    const prod = byId(l.id);
+    if (!prod) return "";
+    const meta = [l.sizeLabel || prod.weight, l.picks.length ? pickSummary(l.picks) : ""].filter(Boolean).join(" · ");
+    return `<div class="line" data-key="${esc(l.key)}">
+      <div class="thumb" data-img="${prod.id}" aria-label="${esc(prod.name)}">${productArt(prod, l.picks)}</div>
+      <div>
+        <h3>${esc(prod.name)}</h3>
+        <div class="meta">${esc(meta)}</div>
+        <div class="stepper sm" style="margin-top:.4rem">
+          <button type="button" data-act="inc" aria-label="הוספת יחידה">+</button>
+          <output>${l.qty}</output>
+          <button type="button" data-act="dec" aria-label="הפחתת יחידה">−</button>
+        </div>
+      </div>
+      <div class="end">
+        <span class="sum">${money(l.qty * l.price)}</span>
+        <button type="button" class="remove" data-act="remove">הסרה</button>
+      </div>
+    </div>`;
+  }).join("");
+  hydrateImages(body);
+  updateTotals();
+}
+
+function updateTotals() {
+  const sub = subtotal();
+  const pickup = $("#checkout").method.value === "pickup";
+  const ship = pickup || sub >= CONFIG.freeShippingFrom ? 0 : CONFIG.shippingPrice;
+  $("#cart-subtotal").textContent = money(sub);
+  $("#cart-shipping").textContent = pickup ? "איסוף עצמי" : ship ? money(ship) : "חינם 🎉";
+  $("#cart-total").textContent = money(sub + ship);
+  const left = CONFIG.freeShippingFrom - sub;
+  $("#ship-note").textContent = !pickup && left > 0 ? `עוד ${money(left)} ומקבלים משלוח חינם!` : "";
+  return { sub, ship, total: sub + ship };
+}
+
+$("#cart-items").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-act]");
+  if (!btn) return;
+  const key = btn.closest(".line").dataset.key;
+  const line = cart.find((l) => l.key === key);
+  if (!line) return;
+  if (btn.dataset.act === "inc") line.qty++;
+  if (btn.dataset.act === "dec") line.qty--;
+  if (btn.dataset.act === "remove" || line.qty < 1) cart = cart.filter((l) => l !== line);
+  saveCart();
+});
+
+/* פתיחה וסגירה של הסל */
+const drawer = $("#cart");
+let lastFocus = null;
+
+function openCart() {
+  lastFocus = document.activeElement;
+  drawer.hidden = false;
+  drawer.classList.remove("is-closing");
+  document.body.classList.add("no-scroll");
+  $(".close-btn", drawer).focus();
+}
+
+function closeCart() {
+  if (drawer.hidden || drawer.classList.contains("is-closing")) return;
+  drawer.classList.add("is-closing");
+  setTimeout(() => {
+    drawer.hidden = true;
+    drawer.classList.remove("is-closing");
+    document.body.classList.remove("no-scroll");
+    lastFocus?.focus?.();
+  }, 230);
+}
+
+$("#cart-btn").addEventListener("click", openCart);
+drawer.addEventListener("click", (e) => { if (e.target.closest("[data-close-cart]")) closeCart(); });
+
+/* טופס הזמנה → וואטסאפ */
+const form = $("#checkout");
+const branchSelect = form.branch;
+branchSelect.innerHTML = `<option value="">בחרו סניף לאיסוף</option>` +
+  BRANCHES.map((b) => `<option>${esc(b.city)}</option>`).join("");
+
+form.addEventListener("change", (e) => {
+  if (e.target.name !== "method") return;
+  const pickup = form.method.value === "pickup";
+  form.address.hidden = pickup;
+  branchSelect.hidden = !pickup;
+  updateTotals();
+});
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const err = $("#form-error");
+  const pickup = form.method.value === "pickup";
+  const name = form.name.value.trim();
+  const phone = form.phone.value.trim();
+  if (!name || !/^[\d\-+ ]{9,}$/.test(phone)) { err.textContent = "נא למלא שם וטלפון תקין."; return; }
+  if (!pickup && !form.address.value.trim()) { err.textContent = "נא למלא כתובת למשלוח."; return; }
+  if (pickup && !branchSelect.value) { err.textContent = "נא לבחור סניף לאיסוף."; return; }
+  err.textContent = "";
+
+  const { ship, total } = updateTotals();
+  const lines = cart.map((l) => {
+    const prod = byId(l.id);
+    const extra = [l.sizeLabel, l.picks.length ? pickSummary(l.picks) : ""].filter(Boolean).join(" | ");
+    return `• ${prod.name}${extra ? ` (${extra})` : ""} × ${l.qty} = ${money(l.qty * l.price)}`;
+  });
+  const msg = [
+    "שלום Dreamy! 🍨 אני רוצה להזמין:",
+    "",
+    ...lines,
+    "",
+    `משלוח: ${pickup ? "איסוף מסניף " + branchSelect.value : ship ? money(ship) : "חינם"}`,
+    `סה"כ: ${money(total)}`,
+    "",
+    `שם: ${name}`,
+    `טלפון: ${phone}`,
+    pickup ? "" : `כתובת: ${form.address.value.trim()}`,
+    form.notes.value.trim() ? `הערות: ${form.notes.value.trim()}` : ""
+  ].filter((x, i, a) => x !== "" || a[i - 1] !== "").join("\n");
+
+  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
 });
 
 /* =========================================================
-   תפריט עליון
+   הודעה קופצת
    ========================================================= */
-function initHeader() {
-  const header = document.querySelector(".site-header");
-  const toggle = document.querySelector(".nav-toggle");
-  const nav = document.getElementById("site-nav");
-
-  const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 20);
-  onScroll();
-  window.addEventListener("scroll", onScroll, { passive: true });
-
-  const setMenu = (open) => {
-    toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "סגירת תפריט" : "פתיחת תפריט");
-    nav.classList.toggle("is-open", open);
-    header.classList.toggle("menu-open", open);
-  };
-
-  toggle.addEventListener("click", () => setMenu(toggle.getAttribute("aria-expanded") !== "true"));
-  nav.addEventListener("click", (e) => { if (e.target.closest("a")) setMenu(false); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
-  window.addEventListener("resize", () => { if (window.innerWidth > 760) setMenu(false); });
+let toastTimer;
+function toast(text) {
+  const t = $("#toast");
+  t.textContent = text;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
 }
 
-/* ---------- הפעלה ---------- */
-applyConfig();
-buildHero();
-buildGallery();
-initHeader();
+/* =========================================================
+   כרטיס מוצר
+   ========================================================= */
+function cardHTML(prod, i = 0) {
+  const flags = [
+    prod.isNew ? `<span class="tag">חדש!</span>` : "",
+    prod.limited ? `<span class="tag">מהדורה מוגבלת</span>` : "",
+    prod.sugarFree ? `<span class="tag soft">ללא סוכר</span>` : ""
+  ].join("");
+  const priceLabel = SIZES[prod.type] ? `<small>החל מ-</small>${money(SIZES[prod.type][0].price)}` : money(prod.price);
+  const weight = SIZES[prod.type] ? SIZES[prod.type].map((s) => s.label).join(" / ") : prod.weight || "בחירת טעמים";
+  return `<article class="card" style="animation-delay:${Math.min(i, 10) * 45}ms">
+    <div class="card-flags">${flags}</div>
+    <a href="#product/${prod.id}" class="card-art" data-img="${prod.id}" aria-label="${esc(prod.name)}">${productArt(prod)}</a>
+    <h3><a href="#product/${prod.id}">${esc(prod.name)}</a></h3>
+    <div class="price-row"><span class="price">${priceLabel}</span><span class="weight">${esc(weight)}</span></div>
+    <p>${esc(prod.short)}</p>
+    ${prod.pack || SIZES[prod.type]
+      ? `<a href="#product/${prod.id}" class="btn btn-primary btn-sm btn-block">${prod.pack ? "בחירת טעמים" : "בחירת גודל"}</a>`
+      : `<button type="button" class="btn btn-primary btn-sm btn-block" data-add="${prod.id}">הוספה לסל</button>`}
+  </article>`;
+}
+
+document.addEventListener("click", (e) => {
+  const add = e.target.closest("[data-add]");
+  if (add) addToCart(byId(add.dataset.add));
+});
+
+/* =========================================================
+   עמודים
+   ========================================================= */
+const view = $("#view");
+
+function homeView() {
+  const top = [...PRODUCTS].filter((x) => x.type === "personal").sort((a, b) => b.likes - a.likes).slice(0, 4);
+  const tiles = [
+    { key: "personal", label: "חלום אישי", sub: "גביעים של 250 גרם", art: tubSVG(FLAVORS.straw) },
+    { key: "family", label: "חלום משפחתי", sub: "1 ו-2 ליטר", art: tubSVG(FLAVORS.choc, { big: true }) },
+    { key: "stick", label: "חלום על מקל", sub: "שלגונים וארטיקים", art: stickSVG(FLAVORS.choc, byId("choc-stick")) },
+    { key: "party", label: "חלום למסיבות", sub: "מארזים, דליים ומגשים", art: packSVG(byId("party-6")) }
+  ];
+  return `
+    <section class="hero">
+      <div class="float scoop-1">${scoopSVG(FLAVORS.straw, 170)}</div>
+      <div class="float scoop-2">${scoopSVG(FLAVORS.choc, 150)}</div>
+      <div class="float scoop-3">${scoopSVG(FLAVORS.vanilla, 130)}</div>
+      ${[[8, 18], [22, 70], [40, 12], [62, 26], [78, 62], [88, 14], [54, 80]].map(([x, y], i) =>
+        `<div class="float choc" style="left:${x}%;top:${y}%;animation-delay:-${i}s;transform:rotate(${i * 25}deg)"><span></span></div>`).join("")}
+      <div class="hero-content">
+        <h1 class="hero-title">לא סתם גלידה. <span class="latin">DREAMY</span></h1>
+        <p class="hero-sub">גלידה שהיא חלום</p>
+      </div>
+    </section>
+
+    <section class="home-section">
+      <div class="container">
+        <p class="kicker">לא סתם גלידה. DREAMY</p>
+        <p class="lead">העולם שבו חלומות מתוקים הופכים למציאות.<br>גלידות פרימיום בעבודת יד מחומרי הגלם המשובחים בעולם,<br>כדי להעניק לכם רגע של חוויה מושלמת.</p>
+        <a href="#shop" class="pill">גלו את הקולקציה</a>
+        <div class="cat-strip">
+          ${tiles.map((t) => `<a href="#shop/${t.key}" class="cat-tile"><span class="art">${t.art}</span><strong>${t.label}</strong><small>${t.sub}</small></a>`).join("")}
+        </div>
+      </div>
+    </section>
+
+    <section class="home-section">
+      <div class="container">
+        <h2>האמנות של טעם החלומות</h2>
+        <p class="text">אנחנו מאמינים שגלידה היא הרבה יותר מקינוח. היא חוויה. לכן הקמנו את Dreamy, מתוך תשוקה אמיתית לשבור את הגבולות של מה שהכרנו מגלידות.
+          כל קופסה יוקרתית נארזת בקפידה, וכל טעם נרקם כיצירת אמנות קולינרית: שמנת אמיתית, פירות טריים ושוקולד משובח.</p>
+        <a href="#shop" class="pill">בואו להתרגש מכל כפית</a>
+      </div>
+    </section>
+
+    <section class="home-section">
+      <div class="container">
+        <h2>הכי אהובים עכשיו</h2>
+        <div class="featured">${top.map(cardHTML).join("")}</div>
+      </div>
+    </section>
+
+    <section class="home-section">
+      <div class="container">
+        <h2>החלומות של האנשים</h2>
+        <div class="reviews">
+          ${REVIEWS.map((r) => `<figure class="review">
+            <span class="avatar" aria-hidden="true">${esc(r.who.replace("משפחת ", "").charAt(0))}</span>
+            <span class="who">${esc(r.who)}</span>
+            <span class="flavor">${esc(r.flavor)}</span>
+            <blockquote>${esc(r.text)}</blockquote>
+          </figure>`).join("")}
+        </div>
+      </div>
+    </section>`;
+}
+
+/* ---------- חנות ---------- */
+const filters = { dream: null, group: null, texture: null, sort: null, q: "" };
+
+function shopView(param) {
+  if (param !== undefined) {
+    Object.assign(filters, { dream: DREAMS.some((d) => d.key === param) ? param : null, group: GROUPS.some((g) => g.key === param) ? param : null, texture: null, q: "" });
+  }
+  const sideBtn = (list, kind) => list.map((x) =>
+    `<li><button type="button" data-${kind}="${x.key}" class="${filters[kind] === x.key ? "is-active" : ""}">${x.label}</button></li>`).join("");
+  return `
+    <div class="container shop">
+      <aside class="sidebar" id="sidebar" aria-label="סינון מוצרים">
+        <div class="sidebar-close"><strong>סינון</strong><button type="button" class="close-btn" id="sidebar-close" aria-label="סגירת הסינון"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <h3>סנן לפי:</h3>
+        <div class="sort-chips">
+          <button type="button" class="chip ${filters.sort?.startsWith("price") ? "is-active" : ""}" data-sort="price">מחיר${filters.sort === "price-desc" ? " ↓" : filters.sort === "price-asc" ? " ↑" : ""}</button>
+          <button type="button" class="chip ${filters.texture ? "is-active" : ""}" data-sort="texture">מרקם</button>
+          <button type="button" class="chip ${filters.sort === "popular" ? "is-active" : ""}" data-sort="popular">פופולארי</button>
+        </div>
+        <div class="texture-row ${filters.texture || filters.showTexture ? "is-open" : ""}" style="margin:-.6rem 0 1.2rem">
+          ${Object.entries(TEXTURES).map(([k, v]) => `<button type="button" class="chip ${filters.texture === k ? "is-active" : ""}" data-texture="${k}">${v}</button>`).join("")}
+        </div>
+        <h3 class="side-title-accent">על מה אתם חולמים?</h3>
+        <ul class="side-list">${sideBtn(DREAMS, "dream")}</ul>
+        <h3 class="side-title-accent">טעמים</h3>
+        <ul class="side-list">${sideBtn(GROUPS, "group")}</ul>
+        <button type="button" class="btn btn-soft btn-sm btn-block" data-clear>ניקוי סינון</button>
+      </aside>
+
+      <section>
+        <div class="shop-top">
+          <div>
+            <h1>החלום המתוק</h1>
+            <p id="result-count"></p>
+          </div>
+          <input type="search" class="search" id="search" placeholder="חיפוש טעם…" value="${esc(filters.q)}" aria-label="חיפוש טעם">
+        </div>
+        <div class="mobile-filter" style="margin-bottom:1rem">
+          <button type="button" class="btn btn-soft btn-sm" id="open-filter">סינון ומיון ☰</button>
+        </div>
+        <div class="grid" id="grid"></div>
+      </section>
+    </div>`;
+}
+
+function filtered() {
+  let list = PRODUCTS.filter((x) => {
+    const d = filters.dream;
+    if (d === "allergen" && !x.allergenFree) return false;
+    if (d === "sugarfree" && !x.sugarFree) return false;
+    if (d && !["allergen", "sugarfree"].includes(d) && x.type !== d) return false;
+    if (filters.group && !x.groups.includes(filters.group)) return false;
+    if (filters.texture && x.texture !== filters.texture) return false;
+    if (filters.q) {
+      const q = filters.q.trim();
+      const hay = `${x.name} ${x.short} ${(x.tags || []).join(" ")} ${FLAVORS[x.flavor].en}`.toLowerCase();
+      if (!hay.includes(q.toLowerCase())) return false;
+    }
+    return true;
+  });
+  const priceOf = (x) => (SIZES[x.type] ? SIZES[x.type][0].price : x.price);
+  if (filters.sort === "price-asc") list.sort((a, b) => priceOf(a) - priceOf(b));
+  if (filters.sort === "price-desc") list.sort((a, b) => priceOf(b) - priceOf(a));
+  if (filters.sort === "popular") list.sort((a, b) => b.likes + (likes[b.id] ? 1 : 0) - (a.likes + (likes[a.id] ? 1 : 0)));
+  return list;
+}
+
+function renderGrid() {
+  const list = filtered();
+  const grid = $("#grid");
+  grid.innerHTML = list.length
+    ? list.map(cardHTML).join("")
+    : `<div class="empty"><p>לא מצאנו חלום כזה… נסו לשנות את הסינון.</p><button type="button" class="btn btn-primary btn-sm" data-clear>הצגת כל הטעמים</button></div>`;
+  $("#result-count").textContent = `${list.length} מוצרים`;
+  hydrateImages(grid);
+}
+
+function bindShop() {
+  renderGrid();
+  const root = $(".shop");
+  const sidebar = $("#sidebar");
+
+  root.addEventListener("click", (e) => {
+    const t = e.target.closest("button");
+    if (!t) return;
+    if (t.dataset.dream) filters.dream = filters.dream === t.dataset.dream ? null : t.dataset.dream;
+    else if (t.dataset.group) filters.group = filters.group === t.dataset.group ? null : t.dataset.group;
+    else if (t.dataset.texture) filters.texture = filters.texture === t.dataset.texture ? null : t.dataset.texture;
+    else if (t.dataset.sort === "price") filters.sort = filters.sort === "price-asc" ? "price-desc" : filters.sort === "price-desc" ? null : "price-asc";
+    else if (t.dataset.sort === "popular") filters.sort = filters.sort === "popular" ? null : "popular";
+    else if (t.dataset.sort === "texture") { filters.showTexture = !filters.showTexture; if (!filters.showTexture) filters.texture = null; }
+    else if (t.hasAttribute("data-clear")) Object.assign(filters, { dream: null, group: null, texture: null, sort: null, q: "", showTexture: false });
+    else if (t.id === "open-filter") { sidebar.classList.add("is-open"); return; }
+    else if (t.id === "sidebar-close") { sidebar.classList.remove("is-open"); return; }
+    else return;
+
+    /* עדכון המצב החזותי של הסרגל בלי לבנות מחדש את כל הדף */
+    const open = sidebar.classList.contains("is-open");
+    const fresh = new DOMParser().parseFromString(shopView(), "text/html").getElementById("sidebar");
+    sidebar.innerHTML = fresh.innerHTML;
+    sidebar.classList.toggle("is-open", open);
+    if (t.hasAttribute("data-clear")) $("#search").value = "";
+    renderGrid();
+  });
+
+  $("#search").addEventListener("input", (e) => {
+    filters.q = e.target.value;
+    renderGrid();
+  });
+}
+
+/* ---------- עמוד מוצר ---------- */
+function productView(id) {
+  const prod = byId(id);
+  if (!prod) return `<div class="container page-head"><h1>אופס…</h1><p>המוצר לא נמצא.</p><a href="#shop" class="btn btn-primary">חזרה לחנות</a></div>`;
+  const f = FLAVORS[prod.flavor];
+  const liked = !!likes[prod.id];
+  const sizes = SIZES[prod.type];
+  const related = PRODUCTS.filter((x) => x.id !== prod.id && (x.type === prod.type || x.flavor === prod.flavor)).slice(0, 4);
+
+  return `
+    <div class="container">
+      <a href="#shop" class="back-link">→ חזרה לכל הטעמים</a>
+      <article class="product">
+        <div class="product-info">
+          <h1>${esc(prod.name)}</h1>
+          <div class="product-tags">
+            ${(prod.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}
+            <button type="button" class="tag like-btn ${liked ? "is-liked" : ""}" id="like" aria-pressed="${liked}" aria-label="אהבתי">${liked ? "♥" : "♡"} <span>${prod.likes + (liked ? 1 : 0)}</span></button>
+          </div>
+          <p class="product-desc">${esc(prod.long)}</p>
+
+          ${sizes ? `<div class="option-block"><h3>גודל</h3><div class="option-row" id="sizes">
+            ${sizes.map((s, i) => `<button type="button" class="choice ${i === 0 ? "is-active" : ""}" data-size="${s.key}">${s.label} · ${money(s.price)}</button>`).join("")}
+          </div></div>` : ""}
+
+          ${prod.pack ? `<div class="option-block"><h3>${prod.pack.mode === "count" ? `בחרו ${prod.pack.max} גביעים (אפשר לחזור על טעם)` : `בחרו ${prod.pack.max} טעמים`}</h3>
+            <div class="flavor-pick" id="picks">
+              ${PACK_FLAVORS.map((k) => `<button type="button" data-pick="${k}"><span style="display:flex;gap:.4rem;align-items:center"><span class="dot" style="background:${FLAVORS[k].scoop}"></span>${FLAVORS[k].name}</span><span class="n">0</span></button>`).join("")}
+            </div>
+            <p class="pick-status" id="pick-status"></p>
+          </div>` : ""}
+
+          <div class="buy-row">
+            <div class="stepper" aria-label="כמות">
+              <button type="button" data-q="1" aria-label="הוספה">+</button>
+              <output id="qty">1</output>
+              <button type="button" data-q="-1" aria-label="הפחתה">−</button>
+            </div>
+            <span class="info-pill" id="price-pill">${money(sizes ? sizes[0].price : prod.price)}</span>
+            ${prod.weight && !sizes ? `<span class="info-pill">${esc(prod.weight)}</span>` : ""}
+            <button type="button" class="btn btn-primary" id="buy">הוספה לסל</button>
+          </div>
+
+          <div class="nutri">
+            <strong>כשרות:</strong> ${(prod.tags || []).includes("פרווה") ? "פרווה" : "חלבי"}
+            · <strong>מרקם:</strong> ${TEXTURES[prod.texture]}
+            ${prod.allergenFree ? " · <strong>ללא:</strong> אגוזים וגלוטן" : ""}
+            ${prod.sugarFree ? " · <strong>ללא תוספת סוכר</strong>" : ""}
+          </div>
+        </div>
+        <div class="product-art" id="product-art" data-img="${prod.id}" aria-label="${esc(prod.name)}">${productArt(prod)}</div>
+      </article>
+
+      <section class="related">
+        <h2>אולי תחלמו גם על…</h2>
+        <div class="grid">${related.map(cardHTML).join("")}</div>
+      </section>
+    </div>`;
+}
+
+function bindProduct(id) {
+  const prod = byId(id);
+  if (!prod) return;
+  const sizes = SIZES[prod.type];
+  let qty = 1;
+  let size = sizes ? sizes[0].key : null;
+  let picks = [];
+
+  const unit = () => (sizes ? sizes.find((s) => s.key === size).price : prod.price);
+  const refresh = () => {
+    $("#qty").textContent = qty;
+    $("#price-pill").textContent = money(unit() * qty);
+    if (prod.pack) {
+      const max = prod.pack.max;
+      $$("#picks [data-pick]").forEach((b) => {
+        const n = picks.filter((k) => k === b.dataset.pick).length;
+        b.classList.toggle("has", n > 0);
+        $(".n", b).textContent = prod.pack.mode === "count" ? n : "✓";
+      });
+      const left = max - picks.length;
+      $("#pick-status").innerHTML = left > 0
+        ? `נבחרו ${picks.length} מתוך ${max}. ${picks.length ? `<a data-reset>ניקוי בחירה</a>` : ""}`
+        : `הבחירה הושלמה ✓ <a data-reset>ניקוי בחירה</a>`;
+      $("#buy").disabled = left > 0;
+      $("#buy").style.opacity = left > 0 ? ".55" : "1";
+      const art = $("#product-art");
+      if (!art.querySelector("img")) art.innerHTML = productArt(prod, picks);
+    }
+  };
+
+  view.firstElementChild.addEventListener("click", (e) => {
+    const t = e.target.closest("button, a[data-reset]");
+    if (!t) return;
+    if (t.dataset.q) qty = Math.max(1, Math.min(50, qty + Number(t.dataset.q)));
+    else if (t.dataset.size) {
+      size = t.dataset.size;
+      $$("#sizes .choice").forEach((b) => b.classList.toggle("is-active", b === t));
+    } else if (t.dataset.pick) {
+      const k = t.dataset.pick;
+      if (prod.pack.mode === "distinct" && picks.includes(k)) picks = picks.filter((x) => x !== k);
+      else if (picks.length < prod.pack.max) picks.push(k);
+      else toast(`אפשר לבחור עד ${prod.pack.max}`);
+    } else if (t.hasAttribute("data-reset")) picks = [];
+    else if (t.id === "like") {
+      likes[id] = !likes[id];
+      store.set("dreamy-likes", likes);
+      t.classList.toggle("is-liked", likes[id]);
+      t.setAttribute("aria-pressed", likes[id]);
+      t.innerHTML = `${likes[id] ? "♥" : "♡"} <span>${prod.likes + (likes[id] ? 1 : 0)}</span>`;
+      return;
+    } else if (t.id === "buy") {
+      addToCart(prod, { qty, size, picks: [...picks] });
+      return;
+    } else return;
+    refresh();
+  });
+
+  refresh();
+}
+
+/* ---------- סניפים ---------- */
+function branchesView() {
+  return `
+    <div class="container">
+      <header class="page-head">
+        <h1>הסניפים שלנו</h1>
+        <p>בואו לטעום, לבחור ולהתאהב. כל הסניפים כשרים, ומגישים את כל הטעמים במקום.</p>
+      </header>
+      <div class="branches">
+        ${BRANCHES.map((b) => `<article class="branch">
+          <h2>Dreamy ${esc(b.city)}</h2>
+          <p>${esc(b.address)}</p>
+          <p class="hours">${esc(b.hours)}</p>
+          <div class="actions">
+            <a class="btn btn-primary btn-sm" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.address + " " + b.city)}" target="_blank" rel="noopener">ניווט</a>
+            <a class="btn btn-soft btn-sm" href="tel:${CONFIG.phone}">התקשרו</a>
+          </div>
+        </article>`).join("")}
+      </div>
+    </div>`;
+}
+
+/* ---------- מועדון VIP ---------- */
+function vipView() {
+  const tiers = [
+    { name: "חלום מתוק", color: "linear-gradient(135deg,#e7a9b9,#b4526b)", label: "5%", text: "5% הנחה קבועה על כל הזמנה, ועדכון ראשון על טעמים חדשים." },
+    { name: "חלום זהב", color: "linear-gradient(135deg,#e2c08a,#a47a44)", label: "10%", text: "10% הנחה, גביע מתנה ביום ההולדת, ומחיר מיוחד על מארזים למסיבות." },
+    { name: "חלום יהלום", color: "linear-gradient(135deg,#b9a3d6,#5a3f7c)", label: "15%", text: "15% הנחה, משלוח חינם תמיד, וגישה מוקדמת למהדורות המוגבלות לפני כולם." }
+  ];
+  return `
+    <div class="container">
+      <header class="page-head">
+        <h1>מועדון VIP</h1>
+        <p>מצטרפים בחינם, צוברים נקודות על כל כפית ומקבלים הטבות שוות במיוחד.</p>
+      </header>
+      <div class="vip-wrap">
+        <div class="tiers">
+          ${tiers.map((t) => `<article class="tier"><span class="medal" style="background:${t.color}">${t.label}</span>
+            <div><h2>${t.name}</h2><p>${t.text}</p></div></article>`).join("")}
+          <article class="tier"><span class="medal" style="background:linear-gradient(135deg,#f3c4c9,#e07a9a)">+1</span>
+            <div><h2>איך צוברים?</h2><p>כל 10 ש"ח של קנייה שווים נקודה. ב-50 נקודות עולים לחלום זהב, וב-150 נקודות לחלום יהלום.</p></div></article>
+        </div>
+        <aside class="vip-form">
+          <h2>הצטרפות למועדון</h2>
+          <form id="vip" novalidate>
+            <input type="text" name="name" placeholder="שם מלא" autocomplete="name" required>
+            <input type="tel" name="phone" placeholder="טלפון" autocomplete="tel" inputmode="tel" required>
+            <input type="text" name="city" placeholder="עיר">
+            <label style="font-size:.85rem;color:var(--muted)">תאריך יום הולדת (לגביע המתנה)
+              <input type="date" name="birthday">
+            </label>
+            <p class="form-error" id="vip-error" role="alert"></p>
+            <button type="submit" class="btn btn-primary btn-block">הצטרפות בוואטסאפ</button>
+          </form>
+        </aside>
+      </div>
+    </div>`;
+}
+
+function bindVip() {
+  $("#vip").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = e.target;
+    if (!f.name.value.trim() || !/^[\d\-+ ]{9,}$/.test(f.phone.value.trim())) {
+      $("#vip-error").textContent = "נא למלא שם וטלפון תקין.";
+      return;
+    }
+    $("#vip-error").textContent = "";
+    const msg = ["שלום Dreamy! אני רוצה להצטרף למועדון ה-VIP ✨", `שם: ${f.name.value.trim()}`, `טלפון: ${f.phone.value.trim()}`,
+      f.city.value.trim() ? `עיר: ${f.city.value.trim()}` : "", f.birthday.value ? `יום הולדת: ${f.birthday.value}` : ""].filter(Boolean).join("\n");
+    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+  });
+}
+
+/* =========================================================
+   ניתוב בין העמודים (#home, #shop, #product/..., #branches, #vip)
+   ========================================================= */
+function route() {
+  const [page, param] = (location.hash.replace(/^#/, "") || "home").split("/");
+  let html, bind;
+  switch (page) {
+    case "shop": html = shopView(param ?? ""); bind = bindShop; break;
+    case "product": html = productView(param); bind = () => bindProduct(param); break;
+    case "branches": html = branchesView(); break;
+    case "vip": html = vipView(); bind = bindVip; break;
+    default: html = homeView();
+  }
+  view.innerHTML = html;
+  bind?.();
+  hydrateImages(view);
+
+  const active = page === "product" ? "shop" : ["shop", "branches", "vip"].includes(page) ? page : "home";
+  $$("[data-route]").forEach((a) => {
+    const on = a.dataset.route === active;
+    a.classList.toggle("is-active", on);
+    if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+
+  setMenu(false);
+  window.scrollTo({ top: 0, behavior: "instant" });
+  view.focus({ preventScroll: true });
+  const titles = { shop: "החלום המתוק", branches: "סניפים", vip: "מועדון VIP", product: byId(param)?.name };
+  document.title = `${titles[page] ? titles[page] + " | " : ""}Dreamy – לא סתם גלידה`;
+}
+
+/* תפריט נייד */
+const menuBtn = $("#menu-btn");
+function setMenu(open) {
+  menuBtn.setAttribute("aria-expanded", String(open));
+  $("#mobile-nav").classList.toggle("is-open", open);
+}
+menuBtn.addEventListener("click", () => setMenu(menuBtn.getAttribute("aria-expanded") !== "true"));
+
+/* Esc סוגר סל / סינון / תפריט */
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  closeCart();
+  $("#sidebar")?.classList.remove("is-open");
+  setMenu(false);
+});
+
+/* =========================================================
+   הפעלה
+   ========================================================= */
+function init() {
+  $$("[data-phone]").forEach((a) => (a.href = `tel:${CONFIG.phone}`));
+  $$('[data-config="phone"]').forEach((el) => (el.textContent = CONFIG.phone));
+  $("#year").textContent = new Date().getFullYear();
+
+  imageExists("images/logo.png").then((ok) => {
+    if (!ok) return;
+    $$(".logo").forEach((l) => (l.innerHTML = `<img src="images/logo.png" alt="Dreamy">`));
+  });
+
+  window.addEventListener("hashchange", route);
+  route();
+  renderCart();
+}
+
+init();
