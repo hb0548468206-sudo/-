@@ -1,8 +1,8 @@
 /* =========================================================
    Dreamy – אתר מכירות גלידה
    ---------------------------------------------------------
-   ✎ פרטים לעדכון: CONFIG (טלפון/וואטסאפ), FLAVORS (טעמים),
-     PRODUCTS (מוצרים ומחירים), BRANCHES (סניפים).
+   ✎ את הפרטים (טלפון, טעמים, מוצרים ומחירים, סניפים)
+     מעדכנים באזור הניהול: /admin. הנתונים נשמרים ב-data.js.
 
    תמונות (לא חובה):
    • images/logo.png            – הלוגו (כבר בשימוש).
@@ -12,222 +12,22 @@
    כל עוד הקובץ לא קיים, מוצג איור מעוצב אוטומטית.
    ========================================================= */
 
-const CONFIG = {
-  brand: "Dreamy",
-  phone: "0548468506",
-  whatsapp: "972548468506",
-  freeShippingFrom: 150,
-  shippingPrice: 25,
-  currency: 'ש"ח'
-};
+/* ---------- הנתונים נטענים מ-data.js (שמתעדכן מאזור הניהול) ---------- */
+const DATA = (() => {
+  // תצוגה מקדימה: מנהל שמחובר באזור הניהול רואה את הטיוטה שלו בדפדפן שלו בלבד
+  try {
+    if (new URLSearchParams(location.search).has("preview")) {
+      const draft = JSON.parse(localStorage.getItem("dreamy-admin-draft") || "null");
+      if (draft && draft.PRODUCTS) return draft;
+    }
+  } catch { /* ממשיכים עם הנתונים הרגילים */ }
+  return window.DREAMY_DATA;
+})();
 
-/* ---------- טעמים: שם, שם באנגלית לתווית, וצבעי האריזה ---------- */
-const FLAVORS = {
-  choc:      { name: "שוקולד חלומי",     en: "RICH CHOCOLATE",   body: "#5b3323", lid: "#3d2016", tx: "#e3bf86", scoop: "#6e3d28", bits: "#2e170f" },
-  vanilla:   { name: "וניל חלומי",       en: "VANILLA BEAN",     body: "#f7f0e2", lid: "#e6d6ba", tx: "#b08757", scoop: "#f5ead2", bits: "#4a3524" },
-  straw:     { name: "תות חלומי",        en: "STRAWBERRY",       body: "#ef9fbc", lid: "#d9789b", tx: "#fff6f8", scoop: "#f3abc1", bits: "#c22f52" },
-  pistachio: { name: "פיסטוק משי",       en: "PISTACHIO",        body: "#b5cb90", lid: "#8fa86a", tx: "#fffaf0", scoop: "#c3d6a0", bits: "#6f8a46" },
-  caramel:   { name: "קרמל מלוח",        en: "SALTED CARAMEL",   body: "#c88849", lid: "#a46731", tx: "#fff3e0", scoop: "#dba367", bits: "#fffdf8" },
-  cookies:   { name: "עוגיות ושמנת",     en: "COOKIES & CREAM",  body: "#2f2a2a", lid: "#1c1818", tx: "#f1e5d1", scoop: "#efe7da", bits: "#2b2523" },
-  mango:     { name: "מנגו פסיפלורה",    en: "MANGO PASSION",    body: "#f5b548", lid: "#e2962a", tx: "#fffaf0", scoop: "#f8c45f", bits: "#6b3f10" },
-  lemon:     { name: "לימון נענע",       en: "LEMON MINT",       body: "#f3e68a", lid: "#a9c77e", tx: "#557235", scoop: "#f6ee9f", bits: "#6f9f5c" },
-  dulce:     { name: "ריבת חלב",         en: "DULCE DE LECHE",   body: "#e1b07a", lid: "#bc8a54", tx: "#fff7ea", scoop: "#e8be8d", bits: "#8b5a2b" },
-  hazelnut:  { name: "אגוזי לוז וקרמל",  en: "HAZELNUT CARAMEL", body: "#8a5838", lid: "#673e25", tx: "#f2d5a4", scoop: "#a9734c", bits: "#55311c" },
-  berries:   { name: "פירות יער",        en: "WILD BERRIES",     body: "#8d3c6a", lid: "#6a284f", tx: "#fde6f0", scoop: "#a9517f", bits: "#3f1530" },
-  coffee:    { name: "קפה אספרסו",       en: "ESPRESSO",         body: "#7a5641", lid: "#4f3426", tx: "#f3dcc0", scoop: "#a07b62", bits: "#3a2318" },
-  honeyfig:  { name: "דבש ותאנים",       en: "HONEY & FIG",      body: "#d9a35b", lid: "#7a3f52", tx: "#fff4e2", scoop: "#e7b973", bits: "#6d2e45" },
-  halva:     { name: "חלבה וסילאן",      en: "HALVA & DATE",     body: "#eadabd", lid: "#8a5a3a", tx: "#7a4f30", scoop: "#ece0c6", bits: "#6b3e22" },
-  chocsf:    { name: "שוקולד ללא סוכר",  en: "NO SUGAR CHOCO",   body: "#6a3e2b", lid: "#47281b", tx: "#cfe3c4", scoop: "#7a4a33", bits: "#2e170f" },
-  vanillasf: { name: "וניל ללא סוכר",    en: "NO SUGAR VANILLA", body: "#f3efe4", lid: "#c9dcc0", tx: "#6f9566", scoop: "#f2ead8", bits: "#4a3524" }
-};
-
-/* ---------- קטגוריות ("על מה אתם חולמים?") וקבוצות טעם ---------- */
-const DREAMS = [
-  { key: "family",    label: "חלום משפחתי" },
-  { key: "personal",  label: "חלום אישי" },
-  { key: "stick",     label: "חלום על מקל" },
-  { key: "party",     label: "חלום למסיבות" },
-  { key: "allergen",  label: "חלום לאלרגנים" },
-  { key: "sugarfree", label: "חלום ללא סוכר" }
-];
-
-const GROUPS = [
-  { key: "chocolate", label: "שוקולד ומתוקים" },
-  { key: "fruit",     label: "פירות" },
-  { key: "caramel",   label: "קרמל ומלוחים" },
-  { key: "special",   label: "מיוחדים" },
-  { key: "limited",   label: "מהדורות מוגבלות" }
-];
-
-const TEXTURES = { creamy: "קרמי", sorbet: "סורבה", chunky: "עשיר בקטעים" };
-
-const SIZES = {
-  family: [
-    { key: "1l", label: "1 ליטר", price: 79 },
-    { key: "2l", label: "2 ליטר", price: 139 }
-  ],
-  stick: [
-    { key: "one", label: "יחידה", price: 14 },
-    { key: "six", label: "מארז 6 יחידות", price: 69 }
-  ]
-};
-
-/* ---------- המוצרים ---------- */
-const PRODUCTS = [
-  /* אישי – 250 גרם */
-  p("choc-cup", "choc", "personal", ["chocolate"], 35, "creamy", 730,
-    "גלידה בטעם שוקולד בלגי עם כדורי שוקולד ופירורי וופל.",
-    "גלידה בטעם שוקולד בלגי עם כדורי שוקולד ופירורי וופל משובח, עשויה משמנת משובחת בעלת מרקם עשיר וקטיפתי. אז בואו להגשים חלום ולטעום גלידה אחרת שלא דמיינתם!",
-    { tags: ["חלבי", "מתוק", "אישי"] }),
-  p("vanilla-cup", "vanilla", "personal", ["chocolate"], 35, "creamy", 610,
-    "וניל אמיתי ממדגסקר, שמנת טרייה ונגיעה של חלום.",
-    "גלידת וניל קלאסית שמכינים ממקלות וניל אמיתיים ממדגסקר ומשמנת טרייה. מרקם חלק ועדין, עם הנקודות השחורות של הווניל שמעידות על האיכות.",
-    { tags: ["חלבי", "קלאסי", "אישי"], allergenFree: true }),
-  p("straw-cup", "straw", "personal", ["fruit"], 35, "creamy", 540,
-    "תותים טריים ושמנת – ורוד, רענן ומתוק במידה.",
-    "תותים טריים שנקטפו בשיא העונה, מעורבבים בשמנת מתוקה, עם רצועות רוטב תות ביתי. ורודה, רעננה ומתוקה בדיוק במידה.",
-    { tags: ["חלבי", "פירותי", "אישי"], allergenFree: true }),
-  p("pistachio-cup", "pistachio", "personal", ["special"], 39, "creamy", 690,
-    "פיסטוק קלוי טחון דק, משי טהור בכל כפית.",
-    "פיסטוקים קלויים שנטחנים לממרח משיי ומתמזגים בשמנת. עם שבבי פיסטוק פריכים לאורך כל הגביע.",
-    { tags: ["חלבי", "אגוזים", "אישי"], isNew: true }),
-  p("caramel-cup", "caramel", "personal", ["caramel"], 37, "chunky", 650,
-    "קרמל ביתי עם קורט מלח ים ושבבי טופי.",
-    "קרמל שמבושל אצלנו לאט עד לגוון הענברי המושלם, קורט מלח ים אטלנטי ושבבי טופי פריכים. מתוק-מלוח שאי אפשר להפסיק.",
-    { tags: ["חלבי", "מתוק-מלוח", "אישי"] }),
-  p("cookies-cup", "cookies", "personal", ["chocolate"], 37, "chunky", 720,
-    "שמנת לבנה עם המון עוגיות שוקולד פריכות.",
-    "בסיס שמנת לבנה ועדינה, עם המון קטעי עוגיות שוקולד פריכות. הטעם שכולם במשפחה מסכימים עליו.",
-    { tags: ["חלבי", "עוגיות", "אישי"] }),
-  p("dulce-cup", "dulce", "personal", ["caramel"], 37, "creamy", 480,
-    "ריבת חלב סמיכה מתערבלת בגלידת שמנת.",
-    "גלידת שמנת עם עורקים עבים של ריבת חלב סמיכה ומתקתקה. חמה, עוטפת ומזכירה ילדות.",
-    { tags: ["חלבי", "מתוק", "אישי"], allergenFree: true }),
-  p("hazelnut-cup", "hazelnut", "personal", ["caramel"], 39, "chunky", 455,
-    "אגוזי לוז מסוכרים וקרמל בגלידה פרלינית.",
-    "גלידת פרלין אגוזי לוז עם אגוזים מסוכרים וגלי קרמל. עשירה, פריכה ומפנקת.",
-    { tags: ["חלבי", "אגוזים", "אישי"] }),
-  p("coffee-cup", "coffee", "personal", ["special"], 37, "creamy", 390,
-    "אספרסו כפול וגרגירי קפה מצופים שוקולד.",
-    "גלידת אספרסו כפול מפולי קפה קלויים טריים, עם גרגירי קפה מצופים בשוקולד מריר.",
-    { tags: ["חלבי", "קפה", "אישי"] }),
-  p("mango-cup", "mango", "personal", ["fruit"], 33, "sorbet", 505,
-    "סורבה מנגו ופסיפלורה – פרווה, רענן וקיצי.",
-    "סורבה פירות טהור ממחית מנגו בשל ופסיפלורה חמצמצה. פרווה, ללא שמנת וללא ביצים, ומרענן במיוחד.",
-    { tags: ["פרווה", "סורבה", "אישי"], allergenFree: true }),
-  p("lemon-cup", "lemon", "personal", ["fruit"], 33, "sorbet", 360,
-    "לימון סחוט ונענע טרייה – קליל ומרענן.",
-    "סורבה לימונים סחוטים עם עלי נענע טריים. פרווה וקליל, בדיוק מה שצריך אחרי ארוחה.",
-    { tags: ["פרווה", "סורבה", "אישי"], allergenFree: true }),
-  p("chocsf-cup", "chocsf", "personal", ["chocolate"], 37, "creamy", 340,
-    "כל העושר של השוקולד – בלי תוספת סוכר.",
-    "גלידת שוקולד עשירה שממותקת בממתיקים טבעיים, ללא תוספת סוכר. כל הטעם, בלי הסוכר.",
-    { tags: ["חלבי", "ללא סוכר", "אישי"], sugarFree: true }),
-  p("vanillasf-cup", "vanillasf", "personal", ["chocolate"], 37, "creamy", 280,
-    "וניל עדין ללא תוספת סוכר, קטיפתי כמו המקור.",
-    "גלידת וניל ללא תוספת סוכר, ממותקת באריתריטול וסטיביה. קטיפתית כמו המקור.",
-    { tags: ["חלבי", "ללא סוכר", "אישי"], sugarFree: true, allergenFree: true }),
-  p("honeyfig-cup", "honeyfig", "personal", ["limited", "special"], 42, "chunky", 410,
-    "מהדורה מוגבלת: דבש פרחי בר וריבת תאנים.",
-    "מהדורה מוגבלת לעונה: גלידת דבש פרחי בר עם עורקי ריבת תאנים ואגוזי מלך מקורמלים. נמכרת עד גמר המלאי.",
-    { tags: ["חלבי", "מהדורה מוגבלת", "אישי"], limited: true }),
-  p("halva-cup", "halva", "personal", ["limited", "special"], 42, "chunky", 395,
-    "מהדורה מוגבלת: חלבה פריכה וסילאן תמרים.",
-    "מהדורה מוגבלת: גלידת טחינה עם קטעי חלבה פריכה ושכבות סילאן תמרים. שילוב מקומי ומפתיע.",
-    { tags: ["חלבי", "מהדורה מוגבלת", "אישי"], limited: true }),
-
-  /* משפחתי – 1 / 2 ליטר */
-  p("choc-family", "choc", "family", ["chocolate"], 79, "creamy", 580,
-    "השוקולד החלומי בגודל שמספיק לכל המשפחה.",
-    "גלידת השוקולד הבלגי האהובה שלנו בקופסה משפחתית. מספיקה לכולם, ואפילו לסיבוב שני.",
-    { tags: ["חלבי", "משפחתי"] }),
-  p("cookies-family", "cookies", "family", ["chocolate"], 79, "chunky", 545,
-    "עוגיות ושמנת בקופסה גדולה לערבים מתוקים.",
-    "עוגיות ושמנת בקופסה משפחתית, עם המון קטעי עוגיות בכל שכבה.",
-    { tags: ["חלבי", "משפחתי"] }),
-  p("berries-family", "berries", "family", ["fruit"], 79, "creamy", 430,
-    "פירות יער אדומים בגלידת שמנת ורודה-סגולה.",
-    "תות, פטל, אוכמניות ודומדמניות בגלידת שמנת, עם רוטב פירות יער ביתי.",
-    { tags: ["חלבי", "פירותי", "משפחתי"], allergenFree: true }),
-  p("caramel-family", "caramel", "family", ["caramel"], 85, "chunky", 470,
-    "קרמל מלוח וטופי – בגרסה המשפחתית.",
-    "הקרמל המלוח שלנו עם שבבי טופי, בקופסה משפחתית לשולחן שבת או לאירוח.",
-    { tags: ["חלבי", "משפחתי"] }),
-  p("vanilla-family", "vanilla", "family", ["chocolate"], 75, "creamy", 400,
-    "וניל מדגסקר – הבסיס המושלם לכל קינוח.",
-    "גלידת וניל אמיתי בקופסה משפחתית. מתאימה לבד, ליד עוגה חמה או בתוך שייק.",
-    { tags: ["חלבי", "משפחתי"], allergenFree: true }),
-
-  /* על מקל */
-  p("choc-stick", "choc", "stick", ["chocolate"], 14, "chunky", 520,
-    "שלגון שוקולד בציפוי שוקולד בלגי ושקדים.",
-    "שלגון גלידת שוקולד בציפוי עבה של שוקולד בלגי מריר ושברי שקדים קלויים.",
-    { tags: ["חלבי", "על מקל"], coat: "#3a1f15", drizzle: "#d9b37c" }),
-  p("straw-stick", "straw", "stick", ["fruit"], 14, "creamy", 410,
-    "שלגון תות-שמנת בציפוי שוקולד לבן.",
-    "שלגון גלידת תות ושמנת בציפוי שוקולד לבן ופתיתי תות מיובש.",
-    { tags: ["חלבי", "על מקל"], coat: "#f8efe4", drizzle: "#e07a9a" }),
-  p("pistachio-stick", "pistachio", "stick", ["special"], 16, "creamy", 380,
-    "שלגון פיסטוק בציפוי שוקולד לבן ופיסטוקים.",
-    "שלגון גלידת פיסטוק בציפוי שוקולד לבן ופיסטוקים קצוצים.",
-    { tags: ["חלבי", "על מקל"], coat: "#fbf3e6", drizzle: "#8fa86a" }),
-  p("mango-stick", "mango", "stick", ["fruit"], 12, "sorbet", 300,
-    "ארטיק מנגו ללא תוספת סוכר – פרווה.",
-    "ארטיק פירות ממחית מנגו טהורה, ללא תוספת סוכר. פרווה, ללא אלרגנים עיקריים.",
-    { tags: ["פרווה", "ללא סוכר", "על מקל"], sugarFree: true, allergenFree: true }),
-
-  /* למסיבות */
-  p("party-6", "straw", "party", ["chocolate", "fruit", "caramel"], 189, "creamy", 470,
-    "מארז 6 גביעים אישיים בטעמים לבחירתכם.",
-    "מארז מתנה מהודר עם 6 גביעים אישיים של 250 גרם. בוחרים כל טעם, אפשר גם לחזור על אותו טעם, ואנחנו אורזים עם סרט.",
-    { tags: ["מארז", "מתנה", "למסיבות"], pack: { kind: "box", mode: "count", max: 6 } }),
-  p("party-bucket", "vanilla", "party", ["chocolate", "fruit", "caramel"], 199, "creamy", 350,
-    "דלי 3 ליטר בשלושה טעמים לבחירה.",
-    "דלי גלידה ענק של 3 ליטר, מחולק לשלושה תאים, ובכל תא טעם אחר לבחירתכם. מושלם לאירועים, לשבע ברכות ולמסיבות.",
-    { tags: ["3 ליטר", "למסיבות"], pack: { kind: "bucket", mode: "distinct", max: 3 } }),
-  p("party-tray", "choc", "party", ["chocolate", "fruit", "caramel"], 149, "creamy", 325,
-    "מגש 24 כדורי גלידה מוכנים להגשה.",
-    "מגש מוכן להגשה עם 24 כדורי גלידה בארבעה טעמים לבחירתכם, 6 כדורים מכל טעם. רק לפתוח ולהגיש.",
-    { tags: ["24 כדורים", "למסיבות"], pack: { kind: "tray", mode: "distinct", max: 4 } })
-];
-
-function p(id, flavor, type, groups, price, texture, likes, short, long, extra = {}) {
-  const weight = { personal: "250 גרם", family: "1 ליטר", stick: "90 מ\"ל", party: "" }[type];
-  return {
-    id, flavor, type, groups, price, texture, likes, short, long, weight,
-    name: extra.name || (type === "party" ? null : FLAVORS[flavor].name),
-    ...extra
-  };
-}
-
-/* שמות מוצרים מיוחדים */
-Object.assign(PRODUCTS.find((x) => x.id === "choc-stick"), { name: "שלגון שוקולד בלגי" });
-Object.assign(PRODUCTS.find((x) => x.id === "straw-stick"), { name: "שלגון תות שמנת" });
-Object.assign(PRODUCTS.find((x) => x.id === "pistachio-stick"), { name: "שלגון פיסטוק לבן" });
-Object.assign(PRODUCTS.find((x) => x.id === "mango-stick"), { name: "ארטיק מנגו" });
-Object.assign(PRODUCTS.find((x) => x.id === "party-6"), { name: "מארז 6 חלומות" });
-Object.assign(PRODUCTS.find((x) => x.id === "party-bucket"), { name: "דלי מסיבה 3 ליטר" });
-Object.assign(PRODUCTS.find((x) => x.id === "party-tray"), { name: "מגש 24 כדורים" });
-
-/* טעמים שאפשר לבחור במארזים */
-const PACK_FLAVORS = ["choc", "vanilla", "straw", "pistachio", "caramel", "cookies", "mango", "lemon", "dulce", "hazelnut", "berries", "coffee"];
-
-const BRANCHES = [
-  { city: "ירושלים",     address: "רחוב הדוגמה 12, מרכז העיר",   hours: "א׳–ה׳ 10:00–23:00 · ו׳ 9:00–14:00 · מוצ״ש משעה אחרי צאת השבת" },
-  { city: "בני ברק",     address: "רחוב הדוגמה 45",              hours: "א׳–ה׳ 10:00–23:30 · ו׳ 9:00–14:00 · מוצ״ש משעה אחרי צאת השבת" },
-  { city: "בית שמש",     address: "מרכז מסחרי, רחוב הדוגמה 3",  hours: "א׳–ה׳ 11:00–22:30 · ו׳ 9:00–13:30" },
-  { city: "מודיעין עילית", address: "רחוב הדוגמה 8",             hours: "א׳–ה׳ 11:00–22:00 · ו׳ 9:00–13:30" },
-  { city: "אלעד",        address: "מרכז מסחרי, רחוב הדוגמה 20", hours: "א׳–ה׳ 11:00–22:00 · ו׳ 9:00–13:30" },
-  { city: "אשדוד",       address: "רחוב הדוגמה 17",              hours: "א׳–ה׳ 10:00–23:00 · ו׳ 9:00–14:00" }
-];
-
-const REVIEWS = [
-  { who: "משפחת לוי",     flavor: "מארז 6 חלומות",  text: "הזמנו מארז לשמחה משפחתית, וכולם שאלו מאיפה הגלידה. האריזה מהממת והטעמים פשוט חלום." },
-  { who: "יעקב מ.",       flavor: "פיסטוק משי",     text: "גלידת הפיסטוק הכי טובה שטעמתי. מרגישים שיש שם פיסטוק אמיתי ולא רק צבע ירוק." },
-  { who: "משפחת כהן",     flavor: "עוגיות ושמנת",   text: "הקופסה המשפחתית נגמרת אצלנו תוך יום. הילדים כבר מחכים להזמנה הבאה." },
-  { who: "דוד ש.",        flavor: "ללא סוכר",       text: "סוף סוף גלידה ללא סוכר שבאמת טעימה. קרמית ועשירה, בלי טעם לוואי." },
-  { who: "משפחת פרידמן",  flavor: "קרמל מלוח",      text: "משלוח מהיר, הגלידה הגיעה קפואה לגמרי, והקרמל המלוח פשוט ממכר." }
-];
+const { CONFIG, FLAVORS, DREAMS, GROUPS, TEXTURES, SIZES, PACK_FLAVORS, BRANCHES, REVIEWS } = DATA;
+const ALL_PRODUCTS = DATA.PRODUCTS;
+/* מוצר שסומן "מוסתר" באזור הניהול לא מוצג בחנות */
+const PRODUCTS = ALL_PRODUCTS.filter((x) => !x.hidden);
 
 /* =========================================================
    עזרים
@@ -235,7 +35,7 @@ const REVIEWS = [
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const money = (n) => `${n} ${CONFIG.currency}`;
-const byId = (id) => PRODUCTS.find((x) => x.id === id);
+const byId = (id) => ALL_PRODUCTS.find((x) => x.id === id);
 let uidN = 0;
 const uid = () => `d${++uidN}`;
 
@@ -442,7 +242,7 @@ function productArt(prod, picks) {
 /* =========================================================
    סל קניות – מצב
    ========================================================= */
-let cart = store.get("dreamy-cart", []);
+let cart = store.get("dreamy-cart", []).filter((l) => PRODUCTS.some((x) => x.id === l.id));
 let likes = store.get("dreamy-likes", {});
 
 function saveCart() {
