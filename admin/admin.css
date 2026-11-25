@@ -1,0 +1,116 @@
+/* Dreamy – אזור ניהול */
+:root {
+  --maroon: #b4526b;
+  --maroon-dark: #933e56;
+  --beige: #efe6d5;
+  --gold: #b48d5d;
+  --purple: #5a3f7c;
+  --text: #4b3c62;
+  --muted: #7d6c86;
+  --line: rgba(180, 82, 107, .2);
+  --panel: #fff;
+  --bg: #f8e9ee;
+  --ok: #3f7d55;
+  --font: "Rubik", "Segoe UI", Arial, sans-serif;
+  --radius: 16px;
+  --shadow: 0 10px 28px -16px rgba(110, 60, 90, .4);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font); color: var(--text); background: var(--bg); line-height: 1.6; }
+button, input, select, textarea { font: inherit; color: inherit; }
+img { display: block; max-width: 100%; }
+h1, h2, h3 { margin: 0 0 .5em; font-weight: 500; line-height: 1.25; }
+code { background: #f3e7ea; padding: 0 .35em; border-radius: 6px; direction: ltr; unicode-bidi: isolate; }
+[hidden] { display: none !important; }
+
+/* כפתורים */
+.btn { border: 0; border-radius: 999px; padding: .55rem 1.15rem; cursor: pointer; font-weight: 500; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; text-decoration: none; transition: background .15s, transform .1s; }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--maroon); color: #fff; }
+.btn-primary:hover { background: var(--maroon-dark); }
+.btn-soft { background: var(--beige); color: var(--text); }
+.btn-soft:hover { background: #e6d9c2; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.btn-danger { background: transparent; color: #a23b3b; border: 1px solid rgba(162, 59, 59, .3); }
+.btn-danger:hover { background: #fbeaea; }
+.btn-sm { padding: .3rem .8rem; font-size: .9rem; }
+.btn-block { width: 100%; }
+.link-btn { background: none; border: 0; color: var(--maroon); text-decoration: underline; cursor: pointer; padding: 0; margin-inline-start: .3rem; }
+:focus-visible { outline: 2.5px solid var(--maroon); outline-offset: 2px; border-radius: 8px; }
+
+/* שדות */
+label { display: grid; gap: .25rem; font-size: .9rem; color: var(--muted); }
+input[type=text], input[type=password], input[type=number], input[type=tel], select, textarea {
+  width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: .5rem .7rem; background: #fff; color: var(--text); font-size: 1rem;
+}
+textarea { resize: vertical; min-height: 4.5rem; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--maroon); box-shadow: 0 0 0 3px rgba(180, 82, 107, .15); }
+.ltr { direction: ltr; text-align: right; }
+
+/* התחברות */
+.login { min-height: 100vh; display: grid; place-items: center; padding: 1rem; }
+.login-card { width: min(380px, 100%); background: var(--panel); border-radius: 24px; padding: 2rem 1.6rem; box-shadow: var(--shadow); display: grid; gap: 1rem; }
+.login-logo { height: 64px; margin: 0 auto; }
+.login-card h1 { text-align: center; font-size: 1.5rem; color: var(--purple); margin: 0; }
+.error { color: #a23b3b; margin: 0; min-height: 1.2em; font-size: .95rem; }
+.back-link { text-align: center; color: var(--muted); font-size: .9rem; }
+
+/* סרגל עליון */
+.topbar { position: sticky; top: 0; z-index: 10; background: rgba(255, 255, 255, .96); box-shadow: 0 4px 18px -12px rgba(90, 40, 70, .5); }
+.topbar-inner { max-width: 1100px; margin: 0 auto; padding: .7rem 1rem; display: flex; gap: .8rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: .5rem; text-decoration: none; color: var(--purple); font-weight: 500; }
+.brand img { height: 40px; }
+.top-actions { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.draft-state { font-size: .85rem; color: var(--muted); }
+.draft-state.dirty { color: var(--maroon); font-weight: 500; }
+.tabs { max-width: 1100px; margin: 0 auto; padding: 0 1rem; display: flex; gap: .25rem; overflow-x: auto; scrollbar-width: none; }
+.tabs button { background: none; border: 0; border-bottom: 3px solid transparent; padding: .55rem .9rem; cursor: pointer; color: var(--muted); white-space: nowrap; }
+.tabs button[aria-selected=true] { color: var(--maroon); border-bottom-color: var(--maroon); font-weight: 500; }
+
+.main { max-width: 1100px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+.notice { background: #fff8ec; border: 1px solid #ecd9b6; border-radius: var(--radius); padding: .9rem 1.1rem; font-size: .95rem; margin-bottom: 1.2rem; }
+.notice strong { display: block; color: var(--gold); margin-bottom: .2rem; }
+
+.panel-head { display: flex; gap: .8rem; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 1rem; }
+.panel-head h2 { margin: 0; color: var(--purple); }
+.panel-head .hint { width: 100%; color: var(--muted); margin: 0; font-size: .95rem; }
+.search { max-width: 260px; }
+
+/* כרטיסים */
+.list { display: grid; gap: .8rem; }
+.card { background: var(--panel); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.1rem; }
+.card.is-hidden { opacity: .65; }
+.card-row { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
+.card-title { font-weight: 500; flex: 1; min-width: 160px; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.card-title .dot { width: 14px; height: 14px; border-radius: 50%; flex: none; border: 1px solid rgba(0, 0, 0, .08); }
+.chip { font-size: .78rem; padding: .05rem .55rem; border-radius: 999px; background: var(--beige); color: var(--muted); font-weight: 400; }
+.chip.warn { background: #f3e1e1; color: #a23b3b; }
+.price-inline { width: 110px; }
+.price-inline input { text-align: center; }
+.grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); margin-top: .9rem; }
+.grid .wide { grid-column: 1 / -1; }
+.checks { display: flex; gap: .4rem 1.1rem; flex-wrap: wrap; grid-column: 1 / -1; }
+.checks label { display: flex; gap: .35rem; align-items: center; color: var(--text); font-size: .95rem; cursor: pointer; }
+.checks input { accent-color: var(--maroon); width: 1.05rem; height: 1.05rem; }
+.colors { display: flex; gap: .6rem; flex-wrap: wrap; grid-column: 1 / -1; }
+.colors label { display: flex; align-items: center; gap: .35rem; }
+.colors input[type=color] { width: 2.2rem; height: 2.2rem; border: 1px solid var(--line); border-radius: 8px; padding: 2px; background: #fff; cursor: pointer; }
+.card-foot { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .9rem; }
+.toggle { color: var(--maroon); font-size: .9rem; }
+
+.size-table { display: grid; gap: .6rem; }
+.size-row { display: grid; grid-template-columns: 1fr 140px auto; gap: .6rem; align-items: end; }
+
+.toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translate(-50%, 150%); background: var(--purple); color: #fff; padding: .6rem 1.2rem; border-radius: 999px; transition: transform .25s; z-index: 50; max-width: calc(100% - 2rem); text-align: center; }
+.toast.show { transform: translate(-50%, 0); }
+
+@media (max-width: 600px) {
+  .topbar { position: static; }
+  .top-actions { width: 100%; }
+  .top-actions .btn { flex: 1; }
+  .draft-state { width: 100%; }
+  .price-inline { width: 90px; }
+  .size-row { grid-template-columns: 1fr 100px; }
+  .size-row .btn { grid-column: 1 / -1; }
+}

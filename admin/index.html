@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dreamy | אזור ניהול</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ===== מסך התחברות ===== -->
+  <section class="login" id="login-screen">
+    <form class="login-card" id="login-form" autocomplete="on">
+      <img src="../images/logo.png" alt="Dreamy" class="login-logo">
+      <h1>אזור ניהול</h1>
+      <label>שם משתמש
+        <input type="text" name="user" autocomplete="username" required>
+      </label>
+      <label>סיסמה
+        <input type="password" name="pass" autocomplete="current-password" required>
+      </label>
+      <p class="error" id="login-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary btn-block">כניסה</button>
+      <a href="../index.html" class="back-link">חזרה לאתר</a>
+    </form>
+  </section>
+
+  <!-- ===== אזור הניהול ===== -->
+  <div class="app" id="app" hidden>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="../index.html" class="brand"><img src="../images/logo.png" alt="Dreamy"><span>ניהול</span></a>
+        <div class="top-actions">
+          <span class="draft-state" id="draft-state"></span>
+          <a href="../index.html?preview" target="_blank" rel="noopener" class="btn btn-soft">תצוגה מקדימה</a>
+          <button type="button" class="btn btn-primary" id="publish-btn">שמירה ופרסום באתר</button>
+          <button type="button" class="btn btn-ghost" id="logout-btn">יציאה</button>
+        </div>
+      </div>
+      <nav class="tabs" id="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="products" aria-selected="true">מוצרים</button>
+        <button type="button" role="tab" data-tab="sizes">גדלים ומחירים</button>
+        <button type="button" role="tab" data-tab="flavors">טעמים</button>
+        <button type="button" role="tab" data-tab="branches">סניפים</button>
+        <button type="button" role="tab" data-tab="reviews">המלצות</button>
+        <button type="button" role="tab" data-tab="business">פרטי העסק</button>
+        <button type="button" role="tab" data-tab="settings">הגדרות וסיסמה</button>
+      </nav>
+    </header>
+
+    <main class="main">
+      <div class="notice" id="publish-notice">
+        <strong>איך זה עובד?</strong>
+        כל שינוי נשמר כאן כטיוטה עד שלוחצים "שמירה ופרסום באתר". לפני כן אפשר לבדוק איך זה נראה ב"תצוגה מקדימה".
+        אחרי הפרסום האתר מתעדכן תוך דקה או שתיים.
+        <button type="button" class="link-btn" id="reset-btn">ביטול הטיוטה</button>
+        <button type="button" class="link-btn" id="export-btn">הורדת גיבוי של הנתונים</button>
+      </div>
+      <div id="panel"></div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
